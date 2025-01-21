@@ -8,12 +8,16 @@ const screenshot = require('screenshot-desktop');
 async function takeScreenshotBuffer() {
   // Берём скриншот в формате PNG
   const buffer = await screenshot({ format: 'png' });
+  /* if (buffer.length === 0) {
+    fs.writeFileSync('/Users/vladislav/Desktop/test.txt', 'Screenshot is empty\n', { flag: 'a' });
+    return;
+  } 
   // Можно проверить размер, чтобы убедиться, что не пустой
-  console.log('Размер полученного буфера:', buffer.length, 'байт');
+  console.log('Размер полученного буфера:', buffer.length, 'байт'); */
   return buffer;
 }
 
-// Экспортируем
+
 module.exports = {
   takeScreenshotBuffer
 };

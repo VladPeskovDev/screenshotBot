@@ -11,7 +11,7 @@ const bot = new TelegramBot(TELEGRAM_TOKEN, { polling: true });
  */
 async function sendScreenshot(imageBuffer) {
   await bot.sendPhoto(TELEGRAM_CHAT_ID, imageBuffer);
-  console.log('Скриншот (буфер) отправлен в Telegram!');
+  //console.log('Скриншот (буфер) отправлен в Telegram!');
 }
 
 module.exports = {

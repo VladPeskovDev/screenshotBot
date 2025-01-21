@@ -1,19 +1,37 @@
 {
-  "name": "screenshotbot",
+  "name": "screenshot-bot",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ./src/main.js"
+    "start": "electron ./src/main.js",
+    "dist": "electron-builder"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "array.prototype.findindex": "^2.2.4",
+    "call-bind": "^1.0.8",
+    "call-bind-apply-helpers": "^1.0.1",
     "dotenv": "^16.4.7",
-    "electron": "^34.0.0",
+    "dunder-proto": "^1.0.1",
+    "get-intrinsic": "^1.2.7",
     "node-telegram-bot-api": "^0.66.0",
-    "screenshot-desktop": "^1.15.1"
+    "screenshot-desktop": "^1.15.1",
+    "set-function-length": "^1.2.2"
+  },
+  "devDependencies": {
+    "electron": "^34.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "mac": {
+      "extendInfo": {
+        "LSUIElement": "1"
+      },
+      "category": "public.app-category.utilities"
+    }
   }
 }
