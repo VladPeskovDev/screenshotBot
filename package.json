@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "array.prototype.findindex": "^2.2.4",
+    "axios": "^1.8.3",
     "call-bind": "^1.0.8",
     "call-bind-apply-helpers": "^1.0.1",
     "dotenv": "^16.4.7",
