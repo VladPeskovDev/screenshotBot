@@ -19,6 +19,8 @@
     "dotenv": "^16.4.7",
     "dunder-proto": "^1.0.1",
     "get-intrinsic": "^1.2.7",
+    "node-fetch": "^3.3.2",
+    "node-record-lpcm16": "^1.0.1",
     "node-telegram-bot-api": "^0.66.0",
     "screenshot-desktop": "^1.15.1",
     "set-function-length": "^1.2.2"

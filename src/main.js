@@ -1,4 +1,53 @@
 const { app, globalShortcut } = require('electron');
+const { sendScreenshot } = require('./screenshot');
+const { startRecording, stopRecording } = require('./recorder');
+
+// Скрываем значок в Dock на macOS
+if (process.platform === 'darwin') {
+  app.dock.hide();
+}
+
+let isRecording = false;
+
+app.whenReady().then(() => {
+  console.log('🚀 Приложение запущено в фоновом режиме.');
+
+  // 📸 Горячая клавиша для отправки скриншота
+  globalShortcut.register('CommandOrControl+Left', async () => {
+    await sendScreenshot();
+  });
+
+  // 🎙 Горячая клавиша для старта и остановки записи аудио
+  globalShortcut.register('CommandOrControl+Shift+R', async () => {
+    if (!isRecording) {
+      console.log('🎤 Начинаем запись...');
+      isRecording = true;
+      await startRecording();
+    } else {
+      console.log('🛑 Останавливаем запись...');
+      isRecording = false;
+      await stopRecording();
+    }
+  });
+
+  console.log('🎤 Горячие клавиши активированы.');
+});
+
+// ❌ При выходе очищаем горячие клавиши
+app.on('will-quit', () => {
+  globalShortcut.unregisterAll();
+});
+
+
+
+
+
+
+
+
+
+
+/* const { app, globalShortcut } = require('electron');
 const { sendScreenshot } = require('./telegram');
 const { takeScreenshotBuffer } = require('./screenshot');
 //const fs = require('fs');
@@ -53,6 +102,6 @@ app.whenReady().then(() => {
 // При завершении приложения освобождаем шорткаты
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
-});
+}); */
 
 
