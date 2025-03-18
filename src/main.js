@@ -1,45 +1,121 @@
-const { app, globalShortcut } = require('electron');
+// main.js
+const { app, globalShortcut, BrowserWindow, ipcMain } = require('electron');
+const path = require('path');
 const { sendScreenshot } = require('./screenshot');
 const { startRecording, stopRecording } = require('./recorder');
-
-// Скрываем значок в Dock на macOS
-if (process.platform === 'darwin') {
-  app.dock.hide();
-}
+const {
+  setTelegramChatId,
+  setAudioPrompt,
+  setScreenshotPrompt,
+  getTelegramChatId,
+  getAudioPrompt,
+  getScreenshotPrompt,
+} = require('./telegram');
 
 let isRecording = false;
+let settingsWindow = null;
 
-app.whenReady().then(() => {
-  console.log('🚀 Приложение запущено в фоновом режиме.');
+/**
+ * Создаёт окно настроек (но НЕ закрывает приложение при нажатии на крестик)
+ */
+function createSettingsWindow() {
+  if (settingsWindow) {
+    settingsWindow.show(); // Если уже открыто, просто показываем
+    return;
+  }
 
-  // 📸 Горячая клавиша для отправки скриншота
-  globalShortcut.register('CommandOrControl+Left', async () => {
-    await sendScreenshot();
+  settingsWindow = new BrowserWindow({
+    width: 500,
+    height: 400,
+    titleBarStyle: 'hiddenInset',
+    autoHideMenuBar: true,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+    },
   });
 
-  // 🎙 Горячая клавиша для старта и остановки записи аудио
+  settingsWindow.loadFile(path.join(__dirname, 'renderer.html'));
+
+  // Окно НЕ закрывается, а просто скрывается при нажатии на крестик
+  settingsWindow.on('close', (event) => {
+    event.preventDefault();
+    settingsWindow.hide();
+  });
+
+  settingsWindow.on('closed', () => {
+    settingsWindow = null;
+  });
+}
+
+/**
+ * Открывает/закрывает окно настроек по горячей клавише
+ */
+function toggleSettingsWindow() {
+  if (!settingsWindow) {
+    createSettingsWindow();
+  } else {
+    settingsWindow.isVisible() ? settingsWindow.hide() : settingsWindow.show();
+  }
+}
+
+app.whenReady().then(() => {
+  console.log('🚀 Приложение запущено.');
+
+  globalShortcut.register('CommandOrControl+Shift+S', toggleSettingsWindow);
+  globalShortcut.register('CommandOrControl+Left', sendScreenshot);
   globalShortcut.register('CommandOrControl+Shift+R', async () => {
-    if (!isRecording) {
-      console.log('🎤 Начинаем запись...');
-      isRecording = true;
-      await startRecording();
-    } else {
-      console.log('🛑 Останавливаем запись...');
-      isRecording = false;
-      await stopRecording();
-    }
+    isRecording ? await stopRecording() : await startRecording();
+    isRecording = !isRecording;
   });
 
   console.log('🎤 Горячие клавиши активированы.');
 });
 
-// ❌ При выходе очищаем горячие клавиши
+/**
+ * 🔹 Сохранение настроек через IPC
+ */
+ipcMain.on('save-settings', (event, { chatId, prompt, screenshotPrompt }) => {
+  setTelegramChatId(chatId);
+  setAudioPrompt(prompt);
+  setScreenshotPrompt(screenshotPrompt);
+  console.log('✅ Настройки обновлены:', { chatId, prompt, screenshotPrompt });
+});
+
+/**
+ * 🔹 Добавляем обработчик для загрузки настроек
+ */
+ipcMain.handle('load-settings', () => {
+  return {
+    chatId: getTelegramChatId(),
+    prompt: getAudioPrompt(),
+    screenshotPrompt: getScreenshotPrompt(),
+  };
+});
+
+/**
+ * 🔹 Закрытие приложения по кнопке "Выход"
+ */
+ipcMain.on('quit-app', () => {
+  console.log('🛑 Приложение завершает работу...');
+  BrowserWindow.getAllWindows().forEach((win) => win.destroy()); // Закрываем все окна
+  app.quit(); // Стандартный выход (может не сработать)
+  app.exit(0); // Принудительное завершение
+});
+
+// Очистка горячих клавиш при выходе
 app.on('will-quit', () => {
   globalShortcut.unregisterAll();
 });
 
 
 
+
+/* 
+CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
+CommandOrControl+Left – Отправить скриншот.
+CommandOrControl+Shift+R – Начать / Остановить запись.
+
+*/
 
 
 

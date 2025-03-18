@@ -1,11 +1,11 @@
+// recorder.js
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const axios = require('axios');
-const { TELEGRAM_CHAT_ID } = require('./config');
+const { getTelegramChatId, getAudioPrompt } = require('./telegram');
 
 const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
-
 let recordingProcess = null;
 
 /**
@@ -14,7 +14,7 @@ let recordingProcess = null;
 async function startRecording() {
   return new Promise((resolve) => {
     console.log('🎙 Начинаем запись через SoX...');
-    
+
     recordingProcess = exec(`sox -d -r 16000 -c 1 ${audioFilePath}`, (error) => {
       if (error) {
         console.error('❌ Ошибка записи через SoX:', error);
@@ -56,18 +56,26 @@ async function stopRecording() {
 
 /**
  * Отправляет записанный аудиофайл на сервер в формате Base64
- * @param {string} filePath
  */
 async function sendAudioToServer(filePath) {
   try {
+    const chatId = getTelegramChatId();
+    const audioPrompt = getAudioPrompt();
+
+    if (!chatId) {
+      console.warn('❗ TELEGRAM_CHAT_ID не задан. Аудио не отправляем.');
+      return;
+    }
+
     const audioBuffer = fs.readFileSync(filePath);
     const base64Audio = audioBuffer.toString('base64');
 
-    const apiUrl = 'https://eaa5-94-131-21-129.ngrok-free.app/api/audiobot/process-audio';
+    const apiUrl = 'https://a7e2-94-131-21-129.ngrok-free.app/api/audiobot/process-audio';
 
     const response = await axios.post(apiUrl, {
-      chatId: TELEGRAM_CHAT_ID,
+      chatId,
       base64Audio,
+      userPrompt: audioPrompt || 'Аудиосообщение',
     }, {
       headers: { 'Content-Type': 'application/json' },
     });
@@ -79,7 +87,6 @@ async function sendAudioToServer(filePath) {
 }
 
 module.exports = { startRecording, stopRecording };
-
 
 
 //const apiUrl = 'https://eaa5-94-131-21-129.ngrok-free.app//api/audiobot/process-audio';

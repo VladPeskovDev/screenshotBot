@@ -1,37 +1,29 @@
-let mediaRecorder;
-let audioChunks = [];
+// renderer.js
+window.addEventListener('DOMContentLoaded', () => {
+  const chatIdInput = document.getElementById('chatIdInput');
+  const promptInput = document.getElementById('promptInput');
+  const screenshotPromptInput = document.getElementById('screenshotPrompt');
+  const saveBtn = document.getElementById('saveBtn');
+  const quitBtn = document.getElementById('quitBtn'); // Кнопка выхода
 
-window.electronAPI.startRecording = async () => {
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    mediaRecorder = new MediaRecorder(stream);
+  // 🔹 Загружаем сохранённые значения
+  window.electronAPI.loadSettings().then(({ chatId, prompt, screenshotPrompt }) => {
+    chatIdInput.value = chatId;
+    promptInput.value = prompt;
+    screenshotPromptInput.value = screenshotPrompt;
+  });
 
-    mediaRecorder.ondataavailable = (event) => {
-      audioChunks.push(event.data);
-    };
+  // 🔹 При нажатии "Сохранить" обновляем JSON
+  saveBtn.addEventListener('click', () => {
+    window.electronAPI.saveSettings(
+      chatIdInput.value.trim(),
+      promptInput.value.trim(),
+      screenshotPromptInput.value.trim()
+    );
+  });
 
-    mediaRecorder.start();
-    console.log('🎙 Запись началась...');
-  } catch (error) {
-    console.error('❌ Ошибка при доступе к микрофону:', error);
-  }
-};
-
-window.electronAPI.stopRecording = async () => {
-  if (!mediaRecorder) return console.error('❌ Ошибка: запись не начата.');
-
-  mediaRecorder.onstop = async () => {
-    const audioBlob = new Blob(audioChunks, { type: 'audio/wav' });
-    const arrayBuffer = await audioBlob.arrayBuffer();
-    const buffer = Buffer.from(arrayBuffer);
-
-    console.log('✅ Аудио записано. Отправляем на сервер...');
-    await window.electronAPI.sendAudioToServer(buffer);
-
-    // Очищаем буфер
-    audioChunks = [];
-  };
-
-  mediaRecorder.stop();
-  console.log('🛑 Запись остановлена...');
-};
+  // 🔹 Выход из приложения
+  quitBtn.addEventListener('click', () => {
+    window.electronAPI.quitApp();
+  });
+});

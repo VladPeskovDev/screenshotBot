@@ -1,44 +1,79 @@
-const axios = require('axios');
-const { TELEGRAM_CHAT_ID } = require('./config');
+// telegram.js
+const fs = require('fs');
+const path = require('path');
+const { app } = require('electron');
 
-/**
- * Отправляет скриншот (буфер PNG) на сервер через API
- * @param {Buffer} imageBuffer
- */
-async function sendScreenshot(imageBuffer) {
+const settingsPath = path.join(app.getPath('userData'), 'settings.json');
+
+// Дефолтные настройки
+const defaultSettings = {
+  telegramChatId: '',
+  audioPrompt: '',
+  screenshotPrompt: '',
+};
+
+// Загружаем настройки из файла (или создаём файл, если его нет)
+function loadSettings() {
   try {
-    // Конвертируем  в Base64
-    const base64Image = `data:image/png;base64,${imageBuffer.toString('base64')}`;
+    if (!fs.existsSync(settingsPath)) {
+      saveSettings(defaultSettings);
+      return defaultSettings;
+    }
 
-    // Адрес API 
-    const apiUrl = 'https://eaa5-94-131-21-129.ngrok-free.app/api/imagebot/external/image-process';
-
-    //  отправка
-    await axios.post(apiUrl, {
-      chatId: TELEGRAM_CHAT_ID,
-      base64Image,
-      userMessage: 'что выведет console.log?',
-    }, { headers: { 'Content-Type': 'application/json' } });
-
-    console.log('✅ Скриншот успешно отправлен на сервер!');
+    const data = fs.readFileSync(settingsPath, 'utf-8');
+    return JSON.parse(data);
   } catch (error) {
-    console.error('❌ Ошибка при отправке скриншота на сервер:', error.message);
+    console.error('❌ Ошибка при загрузке настроек:', error);
+    return defaultSettings;
   }
 }
 
-module.exports = { sendScreenshot };
+// Сохраняем настройки в JSON-файл
+function saveSettings(settings) {
+  try {
+    fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
+    console.log('✅ Настройки сохранены:', settings);
+  } catch (error) {
+    console.error('❌ Ошибка при сохранении настроек:', error);
+  }
+}
 
+// Получаем текущие настройки
+const settings = loadSettings();
 
+// Геттеры
+function getTelegramChatId() {
+  return settings.telegramChatId;
+}
+function getAudioPrompt() {
+  return settings.audioPrompt;
+}
+function getScreenshotPrompt() {
+  return settings.screenshotPrompt;
+}
 
+// Сеттеры (обновляют JSON-файл)
+function setTelegramChatId(value) {
+  settings.telegramChatId = value;
+  saveSettings(settings);
+}
+function setAudioPrompt(value) {
+  settings.audioPrompt = value;
+  saveSettings(settings);
+}
+function setScreenshotPrompt(value) {
+  settings.screenshotPrompt = value;
+  saveSettings(settings);
+}
 
-
-
-
-
-
-
-
-
+module.exports = {
+  getTelegramChatId,
+  getAudioPrompt,
+  getScreenshotPrompt,
+  setTelegramChatId,
+  setAudioPrompt,
+  setScreenshotPrompt,
+};
 
 
 
