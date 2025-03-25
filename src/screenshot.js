@@ -15,13 +15,13 @@ async function sendScreenshot() {
     }
 
     // Пользовательский промпт или дефолт
-    const userMessage = getScreenshotPrompt() || 'Что на этом изображении?';
+    const userMessage = getScreenshotPrompt();
 
     const buffer = await screenshot({ format: 'png' });
     const base64Image = `data:image/png;base64,${buffer.toString('base64')}`;
 
     await axios.post(
-      'https://a7e2-94-131-21-129.ngrok-free.app/api/imagebot/external/image-process',
+      'https://4630-94-131-21-129.ngrok-free.app/api/imagebot/external/image-process',
       {
         chatId,
         base64Image,

@@ -70,17 +70,16 @@ async function sendAudioToServer(filePath) {
     const audioBuffer = fs.readFileSync(filePath);
     const base64Audio = audioBuffer.toString('base64');
 
-    const apiUrl = 'https://a7e2-94-131-21-129.ngrok-free.app/api/audiobot/process-audio';
+    const apiUrl = 'https://4630-94-131-21-129.ngrok-free.app/api/audiobot/process-audio';
 
     const response = await axios.post(apiUrl, {
       chatId,
       base64Audio,
-      userPrompt: audioPrompt || 'Аудиосообщение',
+      userPrompt: audioPrompt,
     }, {
       headers: { 'Content-Type': 'application/json' },
     });
-
-    console.log('✅ Аудио успешно отправлено на сервер:', response.data);
+  //console.log('✅ Аудио успешно отправлено на сервер:', response.data);
   } catch (error) {
     console.error('❌ Ошибка при отправке аудио на сервер:', error);
   }
