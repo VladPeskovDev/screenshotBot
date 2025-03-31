@@ -12,6 +12,7 @@ const HomePage = () => {
       <h1>Добро пожаловать</h1>
       <button className="button" onClick={() => navigate('/settings')}>Настройки</button>
       <button className="button" onClick={() => navigate('/faq')}>FAQ</button>
+      <button className="button" onClick={() => navigate('/logs')}>Логи</button>
       <button className="button exit-btn" onClick={() => navigate('/exit')}>Выход</button>
     </div>
   );

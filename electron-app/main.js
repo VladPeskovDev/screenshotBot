@@ -3,11 +3,7 @@ const { app, globalShortcut, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { sendScreenshot } = require("./screenshot");
 const { startRecording, stopRecording } = require("./recorder");
-const {
-  setTelegramChatId,
-  setAudioPrompt,
-  setScreenshotPrompt,
-  getTelegramChatId,
+const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
 } = require("./telegram");
@@ -15,12 +11,11 @@ const {
 let isRecording = false;
 let settingsWindow = null;
 
-/**
- * Создаёт окно настроек (но НЕ закрывает приложение при нажатии на крестик)
- */
+// Создаёт окно настроек 
+ 
 function createSettingsWindow() {
   if (settingsWindow) {
-    settingsWindow.show(); // Если уже открыто, просто показываем
+    settingsWindow.show(); 
     return;
   }
 
@@ -82,9 +77,8 @@ app.whenReady().then(() => {
 
 app.dock && app.dock.hide();
 
-/**
- * 🔹 Сохранение настроек через IPC
- */
+// Сохранение настроек через IPC
+ 
 ipcMain.on("save-settings", (event, { chatId, prompt, screenshotPrompt }) => {
   setTelegramChatId(chatId);
   setAudioPrompt(prompt);
@@ -92,9 +86,8 @@ ipcMain.on("save-settings", (event, { chatId, prompt, screenshotPrompt }) => {
   console.log("✅ Настройки обновлены:", { chatId, prompt, screenshotPrompt });
 });
 
-/**
- * 🔹 Добавляем обработчик для загрузки настроек
- */
+//Добавляем обработчик для загрузки настроек
+
 ipcMain.handle("load-settings", () => {
   return {
     chatId: getTelegramChatId(),
@@ -111,6 +104,14 @@ ipcMain.on("quit-app", () => {
   BrowserWindow.getAllWindows().forEach((win) => win.destroy()); // Закрываем все окна
   app.quit(); // Стандартный выход (может не сработать)
   app.exit(0); // Принудительное завершение
+});
+
+// Получаем лог от внутреннего модуля (например, recorder.js, screenshot.js)
+ipcMain.on('log-message', (event, log) => {
+  const windows = BrowserWindow.getAllWindows();
+  windows.forEach((win) => {
+    win.webContents.send('log-from-main', log);
+  });
 });
 
 // Очистка горячих клавиш при выходе

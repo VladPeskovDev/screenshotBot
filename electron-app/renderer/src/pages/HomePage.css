@@ -27,7 +27,7 @@
     cursor: pointer;
     transition: background 0.2s ease;
     width: 200px;
-    opacity: 0.75;
+    opacity: 0.70;
   }
   
   .button:hover {

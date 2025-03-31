@@ -5,10 +5,10 @@
   "main": "src/main.js",
   "scripts": {
     "dev": "concurrently -k -s first -n VITE,ELECTRON \"npm run dev:renderer\" \"npm run wait-and-electron\"",
-  "dev:renderer": "cd electron-app/renderer && npm run dev",
-  "wait-and-electron": "npx wait-port localhost:5173 && npm run electron-dev",
-  "electron-dev": "electron ./electron-app/main.js",
-  "build:renderer": "cd electron-app/renderer && npm run build",
+    "dev:renderer": "cd electron-app/renderer && npm run dev",
+    "wait-and-electron": "npx wait-port localhost:5173 && npm run electron-dev",
+    "electron-dev": "electron ./electron-app/main.js",
+    "build:renderer": "cd electron-app/renderer && npm run build",
     "start": "electron ./electron-app/main.js"
   },
   "keywords": [],
@@ -27,7 +27,8 @@
     "node-telegram-bot-api": "^0.66.0",
     "react-router-dom": "^6.30.0",
     "screenshot-desktop": "^1.15.1",
-    "set-function-length": "^1.2.2"
+    "set-function-length": "^1.2.2",
+    "zustand": "^5.0.3"
   },
   "devDependencies": {
     "@types/react": "^19.0.12",

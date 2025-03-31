@@ -1,70 +1,77 @@
-// recorder.js
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const axios = require('axios');
 const { getTelegramChatId, getAudioPrompt } = require('./telegram');
+const { ipcMain } = require('electron');
 
 const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
 let recordingProcess = null;
 
-/**
- * Начинаем запись аудио через SoX
- */
+// Начинаем запись аудио через SoX
+ 
 async function startRecording() {
   return new Promise((resolve) => {
-    console.log('🎙 Начинаем запись через SoX...');
-
     recordingProcess = exec(`sox -d -r 16000 -c 1 ${audioFilePath}`, (error) => {
       if (error) {
         console.error('❌ Ошибка записи через SoX:', error);
+        ipcMain.emit('log-message', null, {
+          type: 'error',
+          message: `Ошибка при записи аудио: ${error.message}`,
+        });
       }
     });
-
     resolve();
   });
 }
 
-/**
- * Останавливаем запись и отправляем файл на сервер
- */
+// Останавливаем запись и отправляем файл на сервер
+ 
 async function stopRecording() {
   return new Promise((resolve, reject) => {
     if (!recordingProcess) {
-      console.error('❌ Ошибка: запись не начата.');
-      return reject('Запись не начата.');
+      const msg = 'Запись не начата.';
+      console.error('❌ Ошибка:', msg);
+      ipcMain.emit('log-message', null, { type: 'error', message: msg });
+      return reject(msg);
     }
 
-    console.log('🛑 Останавливаем запись...');
-    recordingProcess.kill(); // Останавливаем процесс SoX
+    recordingProcess.kill();
     recordingProcess = null;
 
     setTimeout(async () => {
       if (!fs.existsSync(audioFilePath)) {
-        console.error('❌ Файл не найден:', audioFilePath);
-        return reject('Файл записи не найден.');
+        const msg = 'Файл записи не найден.';
+        console.error('❌', msg);
+        ipcMain.emit('log-message', null, { type: 'error', message: msg });
+        return reject(msg);
       }
 
-      console.log(`📏 Размер файла: ${fs.statSync(audioFilePath).size} байт`);
-      console.log('📤 Отправляем аудио на сервер...');
-
-      await sendAudioToServer(audioFilePath);
+      const success = await sendAudioToServer(audioFilePath);
+      if (success) {
+        ipcMain.emit('log-message', null, {
+          type: 'info',
+          message: 'Аудио успешно отправлено на сервер.',
+        });
+      }
       resolve();
     }, 1000);
   });
 }
 
-/**
- * Отправляет записанный аудиофайл на сервер в формате Base64
- */
+// Отправляет записанный аудиофайл на сервер в формате Base64
+ 
 async function sendAudioToServer(filePath) {
   try {
     const chatId = getTelegramChatId();
     const audioPrompt = getAudioPrompt();
 
     if (!chatId) {
-      console.warn('❗ TELEGRAM_CHAT_ID не задан. Аудио не отправляем.');
-      return;
+      ipcMain.emit('log-message', null, {
+        type: 'error',
+        message: 'TELEGRAM_CHAT_ID не задан. Аудио не отправлено.',
+      });
+      return false;
     }
 
     const audioBuffer = fs.readFileSync(filePath);
@@ -72,20 +79,27 @@ async function sendAudioToServer(filePath) {
 
     const apiUrl = 'https://4630-94-131-21-129.ngrok-free.app/api/audiobot/process-audio';
 
-    const response = await axios.post(apiUrl, {
+    await axios.post(apiUrl, {
       chatId,
       base64Audio,
       userPrompt: audioPrompt,
-    }, {
-      headers: { 'Content-Type': 'application/json' },
     });
-  //console.log('✅ Аудио успешно отправлено на сервер:', response.data);
+
+    return true;
   } catch (error) {
-    console.error('❌ Ошибка при отправке аудио на сервер:', error);
+    console.error('❌ Ошибка при отправке аудио на сервер:', error.message);
+    ipcMain.emit('log-message', null, {
+      type: 'error',
+      message: `Ошибка при отправке аудио: ${error.message}`,
+    });
+    return false;
   }
 }
 
 module.exports = { startRecording, stopRecording };
+
+
+
 
 
 //const apiUrl = 'https://eaa5-94-131-21-129.ngrok-free.app//api/audiobot/process-audio';

@@ -1,4 +1,3 @@
-// src/App.tsx
 import React from 'react';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -6,6 +5,8 @@ import HomePage from './pages/HomePage';
 import SettingsPage from './pages/SettingsPage';
 import FAQPage from './pages/FAQPage';
 import ExitPage from './pages/ExitPage';
+import LogPage from './pages/LogPage';
+import LogListener from './components/LogListener';
 
 const router = createHashRouter([
   {
@@ -28,11 +29,19 @@ const router = createHashRouter([
         path: '/exit',
         element: <ExitPage />,
       },
+      {
+        path: '/logs',
+        element: <LogPage />,
+      },
     ],
   },
 ]);
 
 export default function App() {
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <LogListener />
+      <RouterProvider router={router} />
+    </>
+  );
 }
-

@@ -29,9 +29,10 @@ const SettingsPage = () => {
       <div className={styles.formGroup}>
         <label className={styles.label}>Telegram Chat ID:</label>
         <input
-          className={styles.input}
-          value={chatId}
-          onChange={(e) => setChatId(e.target.value)}
+           className={styles.input}
+           placeholder="Введите Telegram Chat ID"
+           value={chatId}
+           onChange={(e) => setChatId(e.target.value)}
         />
       </div>
 
@@ -39,6 +40,7 @@ const SettingsPage = () => {
         <label className={styles.label}>Доп. промпт к аудио:</label>
         <textarea
           className={styles.textarea}
+          placeholder="Введите дополнительный системный промт к аудио"
           value={audioPrompt}
           onChange={(e) => setAudioPrompt(e.target.value)}
         />
@@ -48,6 +50,7 @@ const SettingsPage = () => {
         <label className={styles.label}>Доп. промпт к скриншоту:</label>
         <textarea
           className={styles.textarea}
+          placeholder="Введите дополнительный системный промт к скриншоту"
           value={screenshotPrompt}
           onChange={(e) => setScreenshotPrompt(e.target.value)}
         />
