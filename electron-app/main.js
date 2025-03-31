@@ -34,7 +34,17 @@ function createSettingsWindow() {
     },
   });
 
-  settingsWindow.loadFile(path.join(__dirname, "renderer.html"));
+  //settingsWindow.loadURL(`file://${path.join(__dirname, 'renderer/dist/index.html')}#/settings`);
+
+  const isDev = !app.isPackaged;
+
+const rendererUrl = isDev
+  ? 'http://localhost:5173'
+  : `file://${path.join(__dirname, 'renderer/dist/index.html')}`;
+
+settingsWindow.loadURL(rendererUrl);
+
+
 
   // Окно НЕ закрывается, а просто скрывается при нажатии на крестик
   settingsWindow.on("close", (event) => {

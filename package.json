@@ -4,9 +4,12 @@
   "description": "",
   "main": "src/main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "electron ./src/main.js",
-    "dist": "electron-builder"
+    "dev": "concurrently -k -s first -n VITE,ELECTRON \"npm run dev:renderer\" \"npm run wait-and-electron\"",
+  "dev:renderer": "cd electron-app/renderer && npm run dev",
+  "wait-and-electron": "npx wait-port localhost:5173 && npm run electron-dev",
+  "electron-dev": "electron ./electron-app/main.js",
+  "build:renderer": "cd electron-app/renderer && npm run build",
+    "start": "electron ./electron-app/main.js"
   },
   "keywords": [],
   "author": "",
@@ -22,12 +25,19 @@
     "node-fetch": "^3.3.2",
     "node-record-lpcm16": "^1.0.1",
     "node-telegram-bot-api": "^0.66.0",
+    "react-router-dom": "^6.30.0",
     "screenshot-desktop": "^1.15.1",
     "set-function-length": "^1.2.2"
   },
   "devDependencies": {
+    "@types/react": "^19.0.12",
+    "@types/react-dom": "^19.0.4",
+    "concurrently": "^9.1.2",
     "electron": "^34.0.0",
-    "electron-builder": "^25.1.8"
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.8.2",
+    "wait-on": "^8.0.3",
+    "wait-port": "^1.1.0"
   },
   "build": {
     "mac": {
