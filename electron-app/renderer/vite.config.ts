@@ -4,11 +4,10 @@ import path from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  root: path.resolve(__dirname, 'src'),
   build: {
-    outDir: path.resolve(__dirname, 'dist'),
+    outDir: 'dist',
     emptyOutDir: true,
-    target: 'chrome114', // зависит от версии Electron (для Electron 29 — Chromium 114)
+    target: 'chrome114',
   },
   server: {
     port: 5173,

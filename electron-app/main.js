@@ -40,9 +40,10 @@ function createSettingsWindow() {
 
 const rendererUrl = isDev
   ? 'http://localhost:5173'
-  : `file://${path.join(__dirname, 'renderer/dist/index.html')}`;
+  : `file://${path.join(__dirname, 'renderer', 'dist', 'index.html')}`;
 
 settingsWindow.loadURL(rendererUrl);
+
 
 
 
