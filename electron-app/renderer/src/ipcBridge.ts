@@ -1,5 +1,5 @@
 // src/ipcBridge.ts
-export const saveSettings = (chatId: string, prompt: string, screenshotPrompt: string) => {
+export const saveSettings = (chatId: string, prompt: string, screenshotPrompt: string, mode: string, directToken: string, directChatId: string) => {
     window.electronAPI?.saveSettings(chatId, prompt, screenshotPrompt);
   };
   
