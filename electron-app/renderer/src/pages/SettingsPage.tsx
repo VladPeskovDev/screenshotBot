@@ -1,8 +1,8 @@
-// src/pages/SettingsPage.tsx
 import React, { useEffect, useState } from 'react';
 import { saveSettings, loadSettings } from '../ipcBridge';
 import { useNavigate } from 'react-router-dom';
 import styles from './SettingsPage.module.css';
+import type { AppSettings } from '../types';
 
 const SettingsPage: React.FC = () => {
   const [mode, setMode] = useState<'helper' | 'direct'>('helper');
@@ -15,14 +15,7 @@ const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    loadSettings().then((data: {
-      chatId: string;
-      prompt: string;
-      screenshotPrompt: string;
-      mode?: 'helper' | 'direct';
-      directToken?: string;
-      directChatId?: string;
-    }) => {
+    loadSettings().then((data: AppSettings) => {
       setChatId(data.chatId);
       setAudioPrompt(data.prompt);
       setScreenshotPrompt(data.screenshotPrompt);
@@ -42,14 +35,20 @@ const SettingsPage: React.FC = () => {
 
       <div className={styles.formGroup}>
         <label className={styles.label}>Режим работы:</label>
-        <select
-          className={styles.input}
-          value={mode}
-          onChange={(e) => setMode(e.target.value as 'helper' | 'direct')}
-        >
-          <option value="helper">С помощником (GPT)</option>
-          <option value="direct">Без помощника (Telegram бот)</option>
-        </select>
+        <div className={styles.modeButtons}>
+          <button
+            className={`${styles.modeButton} ${mode === 'helper' ? styles.active : ''}`}
+            onClick={() => setMode('helper')}
+          >
+            С помощником
+          </button>
+          <button
+            className={`${styles.modeButton} ${mode === 'direct' ? styles.active : ''}`}
+            onClick={() => setMode('direct')}
+          >
+            Без помощника
+          </button>
+        </div>
       </div>
 
       {mode === 'direct' && (

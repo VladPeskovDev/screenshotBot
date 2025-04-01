@@ -10,6 +10,9 @@ const defaultSettings = {
   telegramChatId: '',
   audioPrompt: '',
   screenshotPrompt: '',
+  mode: 'helper', // helper | direct
+  directToken: '',
+  directChatId: '',
 };
 
 // Загружаем настройки из файла (или создаём файл, если его нет)
@@ -21,7 +24,7 @@ function loadSettings() {
     }
 
     const data = fs.readFileSync(settingsPath, 'utf-8');
-    return JSON.parse(data);
+    return { ...defaultSettings, ...JSON.parse(data) }; // на случай, если добавятся новые поля
   } catch (error) {
     console.error('❌ Ошибка при загрузке настроек:', error);
     return defaultSettings;
@@ -51,6 +54,15 @@ function getAudioPrompt() {
 function getScreenshotPrompt() {
   return settings.screenshotPrompt;
 }
+function getMode() {
+  return settings.mode;
+}
+function getDirectToken() {
+  return settings.directToken;
+}
+function getDirectChatId() {
+  return settings.directChatId;
+}
 
 // Сеттеры (обновляют JSON-файл)
 function setTelegramChatId(value) {
@@ -65,14 +77,32 @@ function setScreenshotPrompt(value) {
   settings.screenshotPrompt = value;
   saveSettings(settings);
 }
+function setMode(value) {
+  settings.mode = value;
+  saveSettings(settings);
+}
+function setDirectToken(value) {
+  settings.directToken = value;
+  saveSettings(settings);
+}
+function setDirectChatId(value) {
+  settings.directChatId = value;
+  saveSettings(settings);
+}
 
 module.exports = {
   getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
+  getMode,
+  getDirectToken,
+  getDirectChatId,
   setTelegramChatId,
   setAudioPrompt,
   setScreenshotPrompt,
+  setMode,
+  setDirectToken,
+  setDirectChatId,
 };
 
 

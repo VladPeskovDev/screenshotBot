@@ -1,11 +1,41 @@
 // src/ipcBridge.ts
-export const saveSettings = (chatId: string, prompt: string, screenshotPrompt: string, mode: string, directToken: string, directChatId: string) => {
-    window.electronAPI?.saveSettings(chatId, prompt, screenshotPrompt);
-  };
+import type { AppSettings } from './types';
+export const saveSettings = (
+  chatId: string,
+  prompt: string,
+  screenshotPrompt: string,
+  mode: string,
+  directToken: string,
+  directChatId: string
+) => {
+  window.electronAPI?.saveSettings({
+    chatId,
+    prompt,
+    screenshotPrompt,
+    mode,
+    directToken,
+    directChatId
+  });
+};
+
   
-  export const loadSettings = () => {
-    return window.electronAPI?.loadSettings();
-  };
+  
+export const loadSettings = (): Promise<AppSettings> => {
+  if (window.electronAPI?.loadSettings) {
+    return window.electronAPI.loadSettings() as Promise<AppSettings>; 
+  }
+
+  return Promise.resolve({
+    chatId: '',
+    prompt: '',
+    screenshotPrompt: '',
+    mode: 'helper',
+    directToken: '',
+    directChatId: '',
+  });
+};
+
+
   
   export const quitApp = () => {
     window.electronAPI?.quitApp();
