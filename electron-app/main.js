@@ -1,12 +1,12 @@
 // main.js
 const { app, globalShortcut, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
-const { sendScreenshot } = require("./screenshot");
-const { startRecording, stopRecording } = require("./recorder");
+const { sendScreenshot } = require("./modules/screenshot");
+const { startRecording, stopRecording } = require("./modules/recorder");
 const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
-} = require("./telegram");
+} = require("./modules/telegram");
 
 let isRecording = false;
 let settingsWindow = null;
@@ -53,9 +53,8 @@ settingsWindow.loadURL(rendererUrl);
   });
 }
 
-/**
- * Открывает/закрывает окно настроек по горячей клавише
- */
+// Открывает закрывает окно настроек по горячей клавише
+ 
 function toggleSettingsWindow() {
   if (!settingsWindow) {
     createSettingsWindow();
@@ -96,9 +95,8 @@ ipcMain.handle("load-settings", () => {
   };
 });
 
-/**
- * 🔹 Закрытие приложения по кнопке "Выход"
- */
+// Закрытие приложения по кнопке "Выход"
+ 
 ipcMain.on("quit-app", () => {
   console.log("🛑 Приложение завершает работу...");
   BrowserWindow.getAllWindows().forEach((win) => win.destroy()); // Закрываем все окна
@@ -118,6 +116,8 @@ ipcMain.on('log-message', (event, log) => {
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
+
+
 
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.

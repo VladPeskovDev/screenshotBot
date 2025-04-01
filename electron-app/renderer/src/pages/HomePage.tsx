@@ -9,7 +9,7 @@ const HomePage = () => {
 
   return (
     <div className="container home">
-      <h1>Добро пожаловать</h1>
+      <h1></h1>
       <button className="button" onClick={() => navigate('/settings')}>Настройки</button>
       <button className="button" onClick={() => navigate('/faq')}>FAQ</button>
       <button className="button" onClick={() => navigate('/logs')}>Логи</button>

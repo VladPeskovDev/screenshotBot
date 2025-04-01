@@ -50,9 +50,9 @@ module.exports = { sendScreenshot };
 */ 
 
 const screenshot = require('screenshot-desktop');
-const { getTelegramChatId, getScreenshotPrompt } = require('./../telegram');
+const { getTelegramChatId, getScreenshotPrompt } = require('./telegram');
 const { ipcMain } = require('electron');
-const axios = require('./../internal/axiosInstance'); 
+const axios = require('../internal/axiosInstance'); 
 
 async function sendScreenshot() {
   try {
