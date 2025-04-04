@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
 const axios = require('../internal/axiosInstance');
-const { getTelegramChatId, getAudioPrompt } = require('./telegram');
+const { getTelegramChatId, getAudioPrompt, getGptModel } = require('./telegram');
 const { ipcMain } = require('electron');
 
 const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
@@ -75,12 +75,12 @@ async function stopRecording() {
   });
 }
 
-
 // 📤 Отправляет записанный аудиофайл на сервер в формате Base64
 async function sendAudioToServer(filePath) {
   try {
     const chatId = getTelegramChatId();
     const audioPrompt = getAudioPrompt();
+    const gptModel = getGptModel() || 'gpt-mini';
 
     if (!chatId) {
       ipcMain.emit('log-message', null, {
@@ -93,8 +93,13 @@ async function sendAudioToServer(filePath) {
     const audioBuffer = fs.readFileSync(filePath);
     const base64Audio = audioBuffer.toString('base64');
 
-    // Отправляем запрос
-    await axios.post('/api/audiobot/process-audio', {
+    // Определяем endpoint в зависимости от выбранной модели
+    let endpoint = '/api/audiobot/process-audio';
+    if (gptModel === 'GPT-o3-mini') endpoint = '/api/audiobot/process-audio-GPT-o3-mini';
+    if (gptModel === 'GPT-4o-mini') endpoint = '/api/audiobot/process-audio-GPT-4o-mini';
+    if (gptModel === 'GPT-o1') endpoint = '/api/audiobot/process-audio-GPT-o1';
+
+    await axios.post(endpoint, {
       chatId,
       base64Audio,
       userPrompt: audioPrompt,
@@ -112,7 +117,6 @@ async function sendAudioToServer(filePath) {
 }
 
 module.exports = { startRecording, stopRecording };
-
 
 
 

@@ -64,6 +64,10 @@ function getDirectChatId() {
   return settings.directChatId;
 }
 
+function getGptModel() {
+  return settings.gptModel || 'GPT-4о';
+}
+
 // Сеттеры (обновляют JSON-файл)
 function setTelegramChatId(value) {
   settings.telegramChatId = value;
@@ -90,6 +94,11 @@ function setDirectChatId(value) {
   saveSettings(settings);
 }
 
+function setGptModel(value) {
+  settings.gptModel = value;
+  saveSettings(settings);
+}
+
 module.exports = {
   getTelegramChatId,
   getAudioPrompt,
@@ -97,12 +106,14 @@ module.exports = {
   getMode,
   getDirectToken,
   getDirectChatId,
+  getGptModel,
   setTelegramChatId,
   setAudioPrompt,
   setScreenshotPrompt,
   setMode,
   setDirectToken,
   setDirectChatId,
+  setGptModel,
 };
 
 

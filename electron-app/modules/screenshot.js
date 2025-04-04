@@ -50,7 +50,7 @@ module.exports = { sendScreenshot };
 */ 
 
 const screenshot = require('screenshot-desktop');
-const { getTelegramChatId, getScreenshotPrompt } = require('./telegram');
+const { getTelegramChatId, getScreenshotPrompt, getGptModel } = require('./telegram');
 const { ipcMain } = require('electron');
 const axios = require('../internal/axiosInstance'); 
 
@@ -66,11 +66,18 @@ async function sendScreenshot() {
       return;
     }
 
+    const gptModel = getGptModel() || 'GPT-4о';
     const userMessage = getScreenshotPrompt();
     const buffer = await screenshot({ format: 'png' });
     const base64Image = `data:image/png;base64,${buffer.toString('base64')}`;
 
-    await axios.post('/api/imagebot/external/image-process', {
+    // Определяем endpoint в зависимости от модели
+    let endpoint = '/api/imagebot/external/image-process';
+    if (gptModel === 'GPT-o3-mini') endpoint = '/api/imagebot/external/image-process-GPT-o3-mini';
+    if (gptModel === 'GPT-4o-mini') endpoint = '/api/imagebot/external/image-process-GPT-4o-mini';
+    if (gptModel === 'GPT-o1') endpoint = '/api/imagebot/external/image-process-GPT-o1';
+
+    await axios.post(endpoint, {
       chatId,
       base64Image,
       userMessage,

@@ -10,6 +10,8 @@ const {
   getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
+  getGptModel,
+  setGptModel,
   setMode,
   getMode,
   getDirectChatId,
@@ -84,15 +86,16 @@ app.whenReady().then(() => {
 
 app.dock && app.dock.hide();
 
-ipcMain.on("save-settings", (event, { chatId, prompt, screenshotPrompt, mode, directToken, directChatId }) => {
+ipcMain.on("save-settings", (event, { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel }) => {
   setTelegramChatId(chatId);
   setAudioPrompt(prompt);
   setScreenshotPrompt(screenshotPrompt);
   setMode(mode);
   if (directToken) setDirectToken(directToken);
   if (directChatId) setDirectChatId(directChatId);
+  if (gptModel) setGptModel(gptModel);
 
-  console.log("✅ Настройки обновлены:", { chatId, prompt, screenshotPrompt, mode, directToken, directChatId });
+  console.log("✅ Настройки обновлены:", { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel });
 });
 
 ipcMain.handle("load-settings", () => {
@@ -103,11 +106,12 @@ ipcMain.handle("load-settings", () => {
     mode: getMode(),
     directToken: getDirectToken(),
     directChatId: getDirectChatId(),
+    gptModel: getGptModel(),
   };
 });
 
 ipcMain.on("quit-app", () => {
-  console.log("🛑 Приложение завершает работу...");
+  console.log("🚸 Приложение завершает работу...");
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
   app.exit(0);
@@ -123,7 +127,6 @@ ipcMain.on('log-message', (event, log) => {
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
-
 
 
 

@@ -1,6 +1,5 @@
 import { AppSettings } from "./types";
 
-// src/ipcBridge.ts
 export const saveSettings = (
   chatId: string,
   prompt: string,
