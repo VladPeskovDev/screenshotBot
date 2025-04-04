@@ -1,12 +1,14 @@
+import { AppSettings } from "./types";
+
 // src/ipcBridge.ts
-import type { AppSettings } from './types';
 export const saveSettings = (
   chatId: string,
   prompt: string,
   screenshotPrompt: string,
   mode: string,
   directToken: string,
-  directChatId: string
+  directChatId: string,
+  gptModel: string
 ) => {
   window.electronAPI?.saveSettings({
     chatId,
@@ -14,9 +16,11 @@ export const saveSettings = (
     screenshotPrompt,
     mode,
     directToken,
-    directChatId
+    directChatId,
+    gptModel
   });
 };
+
 
   
   
@@ -32,6 +36,7 @@ export const loadSettings = (): Promise<AppSettings> => {
     mode: 'helper',
     directToken: '',
     directChatId: '',
+    gptModel: 'GPT-4о',
   });
 };
 

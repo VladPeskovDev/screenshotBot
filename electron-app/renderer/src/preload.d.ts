@@ -10,8 +10,9 @@ declare global {
         mode: string;
         directToken: string;
         directChatId: string;
+        gptModel: string
       }) => void;      
-      loadSettings: () => Promise<{ chatId: string; prompt: string; screenshotPrompt: string, mode: string, directToken: string, directChatId: string }>;
+      loadSettings: () => Promise<{ chatId: string; prompt: string; screenshotPrompt: string, mode: string, directToken: string, directChatId: string, gptModel: string }>;
       onLogMessage: (callback: (log: { type: string; message: string }) => void) => void;
       sendLog: (log: { type: string; message: string }) => void;
       quitApp: () => void;

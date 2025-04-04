@@ -11,6 +11,8 @@ const SettingsPage: React.FC = () => {
   const [screenshotPrompt, setScreenshotPrompt] = useState('');
   const [directToken, setDirectToken] = useState('');
   const [directChatId, setDirectChatId] = useState('');
+  const [gptModel, setGptModel] = useState<'GPT-o3-mini' | 'GPT-4о' | 'GPT-4o-mini' | 'GPT-o1'>('GPT-4о');
+
 
   const navigate = useNavigate();
 
@@ -22,11 +24,12 @@ const SettingsPage: React.FC = () => {
       if (data.mode) setMode(data.mode);
       if (data.directToken) setDirectToken(data.directToken);
       if (data.directChatId) setDirectChatId(data.directChatId);
+      if (data.gptModel) setGptModel(data.gptModel);
     });
   }, []);
 
   const handleSave = () => {
-    saveSettings(chatId, audioPrompt, screenshotPrompt, mode, directToken, directChatId);
+    saveSettings(chatId, audioPrompt, screenshotPrompt, mode, directToken, directChatId, gptModel);
   };
 
   return (
@@ -77,7 +80,21 @@ const SettingsPage: React.FC = () => {
 
       {mode === 'helper' && (
         <>
-          <div className={styles.formGroup}>
+        <div className={styles.formGroup}>
+         <label className={styles.label}>Модель GPT:</label>
+          <select
+             className={styles.input}
+             value={gptModel}
+             onChange={(e) => setGptModel(e.target.value as never)}
+            >
+            <option value="GPT-o3-mini">GPT-o3-mini</option>
+            <option value="GPT-4о">GPT-4о</option>
+            <option value="GPT-4o-mini">GPT-4o-mini</option>
+            <option value="GPT-o1">GPT-o1</option>
+            </select>
+        </div>
+
+        <div className={styles.formGroup}>
             <label className={styles.label}>Telegram Chat ID (для помощника):</label>
             <input
               className={styles.input}
