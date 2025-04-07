@@ -8,13 +8,13 @@ const LogPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="log-container">
-      <h1>Логи</h1>
-      <div className="log-block">
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Логи</h1>
+      <div className={styles.logBlock}>
         {logs.length === 0 && <p>Пока нет сообщений</p>}
         {logs.map((log, idx) => (
-          <div key={idx} className={`log-entry ${log.type}`}>
-            <span className="log-type">[{log.type.toUpperCase()}]</span> {log.message}
+          <div key={idx} className={`${styles.logEntry} ${styles[log.type] || ''}`}>
+            <span>[{log.type.toUpperCase()}]</span> {log.message}
           </div>
         ))}
       </div>
