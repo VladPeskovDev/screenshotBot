@@ -3,7 +3,10 @@ const { app, globalShortcut, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
-const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt,
+const {
+  setTelegramChatId,
+  setAudioPrompt,
+  setScreenshotPrompt,
   getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
@@ -38,8 +41,8 @@ function createSettingsWindow() {
 
   const isDev = !app.isPackaged;
   const rendererUrl = isDev
-    ? 'http://localhost:5173'
-    : `file://${path.join(__dirname, 'renderer', 'dist', 'index.html')}`;
+    ? "http://localhost:5173"
+    : `file://${path.join(__dirname, "renderer", "dist", "index.html")}`;
 
   settingsWindow.loadURL(rendererUrl);
 
@@ -65,8 +68,8 @@ app.whenReady().then(() => {
   globalShortcut.register("CommandOrControl+Shift+S", toggleSettingsWindow);
   globalShortcut.register("CommandOrControl+Left", () => {
     const mode = getMode();
-    if (mode === 'direct') {
-      const { sendDirectScreenshot } = require('./modules/direct');
+    if (mode === "direct") {
+      const { sendDirectScreenshot } = require("./modules/direct");
       sendDirectScreenshot();
     } else {
       sendScreenshot();
@@ -83,17 +86,31 @@ app.whenReady().then(() => {
 
 app.dock && app.dock.hide();
 
-ipcMain.on("save-settings", (event, { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel }) => {
-  setTelegramChatId(chatId);
-  setAudioPrompt(prompt);
-  setScreenshotPrompt(screenshotPrompt);
-  setMode(mode);
-  if (directToken) setDirectToken(directToken);
-  if (directChatId) setDirectChatId(directChatId);
-  if (gptModel) setGptModel(gptModel);
+ipcMain.on(
+  "save-settings",
+  (
+    event,
+    {
+      chatId,
+      prompt,
+      screenshotPrompt,
+      mode,
+      directToken,
+      directChatId,
+      gptModel,
+    }
+  ) => {
+    setTelegramChatId(chatId);
+    setAudioPrompt(prompt);
+    setScreenshotPrompt(screenshotPrompt);
+    setMode(mode);
+    if (directToken) setDirectToken(directToken);
+    if (directChatId) setDirectChatId(directChatId);
+    if (gptModel) setGptModel(gptModel);
 
-  console.log("✅ Настройки обновлены:", { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel });
-});
+    //console.log("✅ Настройки обновлены:", { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel });
+  }
+);
 
 ipcMain.handle("load-settings", () => {
   return {
@@ -108,16 +125,16 @@ ipcMain.handle("load-settings", () => {
 });
 
 ipcMain.on("quit-app", () => {
-  console.log("🚸 Приложение завершает работу...");
+  //console.log("🚸 Приложение завершает работу...");
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
   app.exit(0);
 });
 
-ipcMain.on('log-message', (event, log) => {
+ipcMain.on("log-message", (event, log) => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((win) => {
-    win.webContents.send('log-from-main', log);
+    win.webContents.send("log-from-main", log);
   });
 });
 
@@ -125,11 +142,8 @@ app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
 
-
-
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
 CommandOrControl+Up – Начать / Остановить запись.
 */
-

@@ -35,7 +35,7 @@ function loadSettings() {
 function saveSettings(settings) {
   try {
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
-    console.log('✅ Настройки сохранены:', settings);
+    //console.log('✅ Настройки сохранены:', settings);
   } catch (error) {
     console.error('❌ Ошибка при сохранении настроек:', error);
   }

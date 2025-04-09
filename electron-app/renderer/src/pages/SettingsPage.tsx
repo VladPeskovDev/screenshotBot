@@ -44,13 +44,13 @@ const SettingsPage: React.FC = () => {
             className={`${styles.modeButton} ${mode === 'helper' ? styles.active : ''}`}
             onClick={() => setMode('helper')}
           >
-            С помощником
+            <em>С помощником</em>
           </button>
           <button
             className={`${styles.modeButton} ${mode === 'direct' ? styles.active : ''}`}
             onClick={() => setMode('direct')}
           >
-            Без помощника
+            <em>Без помощника</em>
           </button>
         </div>
       </div>
@@ -96,7 +96,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-            <label className={styles.label}>Telegram ID (для помощника):</label>
+            <label className={styles.label}>Telegram ID:</label>
             <input
               className={styles.input}
               placeholder="Введите Telegram Chat ID"
