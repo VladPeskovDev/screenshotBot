@@ -95,7 +95,7 @@ const SettingsPage: React.FC = () => {
         </div>
 
         <div className={styles.formGroup}>
-            <label className={styles.label}>Telegram Chat ID (для помощника):</label>
+            <label className={styles.label}>Telegram ID (для помощника):</label>
             <input
               className={styles.input}
               placeholder="Введите Telegram Chat ID"
