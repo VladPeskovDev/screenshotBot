@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { saveSettings, loadSettings } from '../ipcBridge';
+import { saveSettings, loadSettings, sendLogMessage } from '../ipcBridge';
 import { useNavigate } from 'react-router-dom';
 import styles from './SettingsPage.module.css';
 import type { AppSettings } from '../types';
@@ -30,6 +30,7 @@ const SettingsPage: React.FC = () => {
 
   const handleSave = () => {
     saveSettings(chatId, audioPrompt, screenshotPrompt, mode, directToken, directChatId, gptModel);
+    sendLogMessage('info', '✅ Настройки успешно сохранены.');
   };
 
   return (

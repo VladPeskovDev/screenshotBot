@@ -40,7 +40,10 @@ export const loadSettings = (): Promise<AppSettings> => {
 };
 
 
-  
+export const sendLogMessage = (type: 'info' | 'error', message: string) => {
+  window.electronAPI?.sendLog?.({ type, message });
+};
+
   export const quitApp = () => {
     window.electronAPI?.quitApp();
   };
