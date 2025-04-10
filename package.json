@@ -1,8 +1,8 @@
 {
-  "name": "screenshot-bot",
+  "name": "hack-sobes",
   "version": "1.0.0",
   "description": "",
-  "main": "src/main.js",
+  "main": "electron-app/main.js",
   "scripts": {
     "dev": "concurrently -k -s first -n VITE,ELECTRON \"npm run dev:renderer\" \"npm run wait-and-electron\"",
     "dev:renderer": "cd electron-app/renderer && npm run dev",
@@ -41,7 +41,11 @@
     "wait-port": "^1.1.0"
   },
   "build": {
+  "appId": "ru.tgqueue.hacksobes",
+  "productName": "Hack Sobes",
   "mac": {
+    "icon": "electron-app/icon/icon.icns",
+    "target": ["dmg"],
     "extendInfo": {
       "LSUIElement": "1"
     },
