@@ -1,4 +1,3 @@
-// main.js
 const { app, globalShortcut, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const { sendScreenshot } = require("./modules/screenshot");
@@ -39,10 +38,17 @@ function createSettingsWindow() {
     },
   });
 
-  const isDev = !app.isPackaged;
+ // 👇 Используется при ручном тестировании собранного фронта:
+ //const rendererUrl = `file://${path.join(__dirname, "renderer", "dist", "index.html")}`;
+
+   const isDev = !app.isPackaged;
   const rendererUrl = isDev
     ? "http://localhost:5173"
     : `file://${path.join(__dirname, "renderer", "dist", "index.html")}`;
+
+
+
+  //console.log('Загружаем фронт из:', rendererUrl);
 
   settingsWindow.loadURL(rendererUrl);
 
@@ -81,7 +87,7 @@ app.whenReady().then(() => {
     isRecording = !isRecording;
   });
 
-  console.log("🎤 Горячие клавиши активированы.");
+  //console.log("🎤 Горячие клавиши активированы.");
 });
 
 app.dock && app.dock.hide();

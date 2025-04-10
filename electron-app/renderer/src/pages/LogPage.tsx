@@ -1,4 +1,3 @@
-import React from 'react';
 import { useLogStore } from '../store/useLogStore';
 import styles from './LogPage.module.css';
 import { useNavigate } from 'react-router-dom';

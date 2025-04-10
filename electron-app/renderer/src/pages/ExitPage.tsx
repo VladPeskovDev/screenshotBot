@@ -1,5 +1,4 @@
-// src/pages/ExitPage.tsx
-import React, { useEffect } from 'react';
+import  { useEffect } from 'react';
 import { quitApp } from '../ipcBridge';
 
 const ExitPage = () => {

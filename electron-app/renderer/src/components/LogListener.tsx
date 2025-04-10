@@ -7,7 +7,7 @@ const LogListener = () => {
   useEffect(() => {
     if (window.electronAPI?.onLogMessage) {
       window.electronAPI.onLogMessage((log) => {
-        addLog(log);
+        addLog(log as { type: 'info' | 'error'; message: string });
       });
     }
   }, []);
