@@ -41,16 +41,23 @@
     "wait-port": "^1.1.0"
   },
   "build": {
-  "appId": "ru.tgqueue.hacksobes",
-  "productName": "HackSobes",
+  "appId": "ru.tgqueue.hacksobes", 
+  "productName": "HackSobes", 
   "mac": {
-    "icon": "electron-app/icon/icon.icns",
-    "target": ["dmg"],
+    "icon": "electron-app/icon/icon.icns", 
+    "target": [
+      {
+        "target": "dmg"
+      }
+    ],
     "extendInfo": {
-      "LSUIElement": "1"
+      "LSUIElement": "1" 
     },
     "category": "public.app-category.utilities"
   },
+  "asarUnpack": [
+    "electron-app/resources/sox/**" 
+  ],
   "extraFiles": [
     {
       "from": "electron-app/resources/sox/",
@@ -58,5 +65,6 @@
       "filter": ["sox"]
     }
   ]
-}
+ }
+
 }

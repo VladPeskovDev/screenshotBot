@@ -145,7 +145,9 @@ const localSoxPath = isMac
 */
 
 // 🛠 Всегда используем встроенный бинарник SoX
-const localSoxPath = path.join(__dirname, '../resources/sox/sox');
+//const localSoxPath = path.join(__dirname, '../resources/sox/sox');
+const localSoxPath = path.join(process.resourcesPath, 'sox', 'sox');
+
 
 // 🎙️ Начинаем запись аудио через SoX
 async function startRecording() {
