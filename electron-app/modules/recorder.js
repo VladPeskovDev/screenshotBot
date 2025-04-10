@@ -136,11 +136,16 @@ const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
 let recordingProcess = null;
 let recordingTimeout = null;
 
-// 🛠 Путь к локальному sox
+
+/* 
 const isMac = process.platform === 'darwin';
 const localSoxPath = isMac
   ? path.join(__dirname, '../resources/sox/sox')
   : 'sox'; // fallback на системный sox
+*/
+
+// 🛠 Всегда используем встроенный бинарник SoX
+const localSoxPath = path.join(__dirname, '../resources/sox/sox');
 
 // 🎙️ Начинаем запись аудио через SoX
 async function startRecording() {
@@ -158,7 +163,7 @@ async function startRecording() {
 
     // ⏱ Устанавливаем автоостановку через 30 секунд
     recordingTimeout = setTimeout(() => {
-      console.warn('⏱ Время записи истекло. Останавливаем автоматически...');
+      //console.warn('⏱ Время записи истекло. Останавливаем автоматически...');
       ipcMain.emit('log-message', null, {
         type: 'info',
         message: '⏱ Запись остановлена автоматически через 30 секунд.',
@@ -205,6 +210,11 @@ async function stopRecording() {
         ipcMain.emit('log-message', null, {
           type: 'info',
           message: 'Аудио успешно отправлено на сервер.',
+        });
+      } else {
+        ipcMain.emit('log-message', null, {
+          type: 'error',
+          message: 'Не удалось отправить аудио на сервер.',
         });
       }
 

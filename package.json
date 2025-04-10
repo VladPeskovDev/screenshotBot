@@ -41,11 +41,18 @@
     "wait-port": "^1.1.0"
   },
   "build": {
-    "mac": {
-      "extendInfo": {
-        "LSUIElement": "1"
-      },
-      "category": "public.app-category.utilities"
+  "mac": {
+    "extendInfo": {
+      "LSUIElement": "1"
+    },
+    "category": "public.app-category.utilities"
+  },
+  "extraFiles": [
+    {
+      "from": "electron-app/resources/sox/",
+      "to": "resources/sox/",
+      "filter": ["sox"]
     }
-  }
+  ]
+}
 }
