@@ -151,7 +151,8 @@ const localSoxPath = path.join(__dirname, '../resources/sox/sox');
 async function startRecording() {
   return new Promise((resolve) => {
     console.log('🎙 Начинаем запись через SoX...');
-    recordingProcess = exec(`${localSoxPath} -d -r 16000 -c 1 ${audioFilePath}`, (error) => {
+    //recordingProcess = exec(`${localSoxPath} -d -r 16000 -c 1 ${audioFilePath}`, (error) => {
+      recordingProcess = exec(`"${localSoxPath}" -d -r 16000 -c 1 "${audioFilePath}"`, (error) => {
       if (error) {
         console.error('❌ Ошибка записи через SoX:', error);
         ipcMain.emit('log-message', null, {
@@ -161,7 +162,7 @@ async function startRecording() {
       }
     });
 
-    // ⏱ Устанавливаем автоостановку через 30 секунд
+    // Устанавливаем автоостановку через 30 секунд
     recordingTimeout = setTimeout(() => {
       //console.warn('⏱ Время записи истекло. Останавливаем автоматически...');
       ipcMain.emit('log-message', null, {

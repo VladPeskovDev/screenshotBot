@@ -42,7 +42,7 @@
   },
   "build": {
   "appId": "ru.tgqueue.hacksobes",
-  "productName": "Hack Sobes",
+  "productName": "HackSobes",
   "mac": {
     "icon": "electron-app/icon/icon.icns",
     "target": ["dmg"],
