@@ -13,14 +13,14 @@ let recordingTimeout = null;
 
 
 
-const isMac = process.platform === 'darwin';
+/* const isMac = process.platform === 'darwin';
 const localSoxPath = isMac
   ? path.join(__dirname, '../resources/sox/sox')
-  : 'sox'; // fallback на системный sox
+  : 'sox'; // fallback на системный sox */
 
 
 // 🛠 Всегда используем встроенный бинарник SoX
-//const localSoxPath = path.join(process.resourcesPath, 'sox', 'sox');
+const localSoxPath = path.join(process.resourcesPath, 'sox', 'sox');
 
 
 // 🎙️ Начинаем запись аудио через SoX

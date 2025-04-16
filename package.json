@@ -1,6 +1,6 @@
 {
   "name": "hack-sobes",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "electron-app/main.js",
   "scripts": {
