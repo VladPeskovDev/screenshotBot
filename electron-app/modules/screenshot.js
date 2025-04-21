@@ -1,13 +1,16 @@
 const screenshot = require('screenshot-desktop');
+const FormData = require('form-data');
+const axios = require('../internal/axiosInstance');
 const { getTelegramChatId, getScreenshotPrompt, getGptModel } = require('./telegram');
 const { ipcMain } = require('electron');
-const axios = require('../internal/axiosInstance'); 
 
 async function sendScreenshot() {
   try {
     const chatId = getTelegramChatId();
+    const userMessage = getScreenshotPrompt();
+    const gptModel = getGptModel() || 'GPT-4о';
+
     if (!chatId) {
-      console.warn('❗ TELEGRAM_CHAT_ID не задан. Скриншот не отправляем.');
       ipcMain.emit('log-message', null, {
         type: 'error',
         message: 'TELEGRAM_CHAT_ID не задан. Скриншот не отправлен.',
@@ -15,24 +18,20 @@ async function sendScreenshot() {
       return;
     }
 
-    const gptModel = getGptModel() || 'GPT-4о';
-    const userMessage = getScreenshotPrompt();
     const buffer = await screenshot({ format: 'png' });
-    const base64Image = `data:image/png;base64,${buffer.toString('base64')}`;
 
-    // Определяем endpoint в зависимости от модели
+    const form = new FormData();
+    form.append('file', buffer, { filename: 'screenshot.png', contentType: 'image/png' });
+    form.append('chatId', chatId);
+    form.append('userPrompt', userMessage);
+
     let endpoint = '/api/imagebot/external/image-process';
     if (gptModel === 'GPT-o3-mini') endpoint = '/api/imagebot/external/image-process-GPT-o3-mini';
     if (gptModel === 'GPT-4o-mini') endpoint = '/api/imagebot/external/image-process-GPT-4o-mini';
     if (gptModel === 'GPT-o1') endpoint = '/api/imagebot/external/image-process-GPT-o1';
 
-    await axios.post(endpoint, {
-      chatId,
-      base64Image,
-      userMessage,
-    });
+    await axios.post(endpoint, form, { headers: form.getHeaders() });
 
-    console.log('✅ Скриншот отправлен на сервер.');
     ipcMain.emit('log-message', null, {
       type: 'info',
       message: 'Скриншот успешно отправлен.',
