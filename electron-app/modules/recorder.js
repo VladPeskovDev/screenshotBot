@@ -1,4 +1,3 @@
-//  ЗАПИСЬ С ТАЙМЕРОМ В 30 СЕКУНД ЕСЛИ ЗАБЫЛИ ОТКЛЮЧИТЬ 
 const fs = require('fs');
 const path = require('path');
 const { exec } = require('child_process');
@@ -6,94 +5,62 @@ const axios = require('../internal/axiosInstance');
 const { getTelegramChatId, getAudioPrompt, getGptModel } = require('./telegram');
 const { ipcMain } = require('electron');
 const FormData = require('form-data');
+const ffmpegPath = require('ffmpeg-static'); 
 
 const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
 let recordingProcess = null;
 let recordingTimeout = null;
 
-
-
-/* const isMac = process.platform === 'darwin';
-const localSoxPath = isMac
-  ? path.join(__dirname, '../resources/sox/sox')
-  : 'sox'; // fallback на системный sox */
-
-
-// 🛠 Всегда используем встроенный бинарник SoX
-const localSoxPath = path.join(process.resourcesPath, 'sox', 'sox');
-
-
-// 🎙️ Начинаем запись аудио через SoX
+// 🎙️ Начинаем запись до 30 секунд
 async function startRecording() {
   return new Promise((resolve) => {
-    console.log('🎙 Начинаем запись через SoX...');
-    //recordingProcess = exec(`${localSoxPath} -d -r 16000 -c 1 ${audioFilePath}`, (error) => {
-      recordingProcess = exec(`"${localSoxPath}" -d -r 16000 -c 1 "${audioFilePath}"`, (error) => {
-      if (error) {
-        console.error('❌ Ошибка записи через SoX:', error);
-        ipcMain.emit('log-message', null, {
-          type: 'error',
-          message: `Ошибка при записи аудио: ${error.message}`,
-        });
-      }
-    });
+    console.log('🎙 Начинаем запись через FFmpeg…');
+    const cmd = `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 30 "${audioFilePath}"`;
 
-    // Устанавливаем автоостановку через 30 секунд
-    recordingTimeout = setTimeout(() => {
-      //console.warn('⏱ Время записи истекло. Останавливаем автоматически...');
+    // Просто запускаем процесс без колбэка
+    recordingProcess = exec(cmd);
+
+    // Логируем только если ffmpeg не смог запуститься
+    recordingProcess.on('error', (err) => {
+      console.error('❌ Не удалось запустить FFmpeg:', err.message);
       ipcMain.emit('log-message', null, {
-        type: 'info',
-        message: '⏱ Запись остановлена автоматически через 30 секунд.',
+        type: 'error',
+        message: `Ошибка при старте записи: ${err.message}`,
       });
-      stopRecording(); // безопасно вызовется и завершит процесс
-    }, 30000);
+    });
 
     resolve();
   });
 }
 
-// 🛑 Останавливаем запись и отправляем файл на сервер
+
+// 🛑 Останавливаем запись и отправляем файл
 async function stopRecording() {
   return new Promise((resolve, reject) => {
     console.log('🛑 Останавливаем запись...');
-
     if (!recordingProcess) {
       const msg = 'Запись не начата.';
-      console.error('❌', msg);
       ipcMain.emit('log-message', null, { type: 'error', message: msg });
       return reject(msg);
     }
 
-    recordingProcess.kill();
+    recordingProcess.kill('SIGINT');
     recordingProcess = null;
-
-    // 🧹 Сброс таймера автоостановки
-    if (recordingTimeout) {
-      clearTimeout(recordingTimeout);
-      recordingTimeout = null;
-    }
 
     setTimeout(async () => {
       if (!fs.existsSync(audioFilePath)) {
         const msg = 'Файл записи не найден.';
-        console.error('❌', msg);
         ipcMain.emit('log-message', null, { type: 'error', message: msg });
         return reject(msg);
       }
 
       const success = await sendAudioToServer(audioFilePath);
-
-      if (success) {
-        ipcMain.emit('log-message', null, {
-          type: 'info',
-          message: 'Аудио успешно отправлено на сервер.',
-        });
-      } else {
-        ipcMain.emit('log-message', null, {
-          type: 'error',
-          message: 'Не удалось отправить аудио на сервер.',
-        });
-      }
+      ipcMain.emit('log-message', null, {
+        type: success ? 'info' : 'error',
+        message: success
+          ? 'Аудио успешно отправлено на сервер.'
+          : 'Не удалось отправить аудио на сервер.',
+      });
 
       try {
         fs.unlinkSync(audioFilePath);
@@ -103,11 +70,11 @@ async function stopRecording() {
       }
 
       resolve();
-    }, 1000);
+    }, 500);
   });
 }
 
-// 📤 Отправляет записанный аудиофайл на сервер в формате Wav
+// 📤 Отправляем файл на сервер
 async function sendAudioToServer(filePath) {
   try {
     const chatId = getTelegramChatId();
@@ -149,6 +116,7 @@ async function sendAudioToServer(filePath) {
 }
 
 module.exports = { startRecording, stopRecording };
+
 
 
 

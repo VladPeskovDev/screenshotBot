@@ -21,6 +21,7 @@
     "call-bind-apply-helpers": "^1.0.1",
     "dotenv": "^16.4.7",
     "dunder-proto": "^1.0.1",
+    "ffmpeg-static": "^5.2.0",
     "get-intrinsic": "^1.2.7",
     "node-fetch": "^3.3.2",
     "node-record-lpcm16": "^1.0.1",
@@ -41,30 +42,23 @@
     "wait-port": "^1.1.0"
   },
   "build": {
-  "appId": "ru.tgqueue.hacksobes", 
-  "productName": "HackSobes", 
+  "appId": "ru.tgqueue.hacksobes",
+  "productName": "HackSobes",
   "mac": {
-    "icon": "electron-app/icon/icon.icns", 
+    "icon": "electron-app/icon/icon.icns",
     "target": [
       {
         "target": "dmg"
       }
     ],
     "extendInfo": {
-      "LSUIElement": "1" 
+      "LSUIElement": "1"
     },
     "category": "public.app-category.utilities"
   },
   "asarUnpack": [
-    "electron-app/resources/sox/**" 
-  ],
-  "extraFiles": [
-    {
-      "from": "electron-app/resources/sox/",
-      "to": "resources/sox/",
-      "filter": ["sox"]
-    }
+    "**/node_modules/ffmpeg-static/**"
   ]
- }
+}
 
 }
