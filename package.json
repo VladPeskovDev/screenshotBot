@@ -1,6 +1,6 @@
 {
   "name": "hack-sobes",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "electron-app/main.js",
   "scripts": {
@@ -52,7 +52,8 @@
       }
     ],
     "extendInfo": {
-      "LSUIElement": "1"
+      "LSUIElement": "1",
+      "NSMicrophoneUsageDescription": "Приложению требуется доступ к микрофону для записи аудио."
     },
     "category": "public.app-category.utilities"
   },
@@ -60,5 +61,4 @@
     "**/node_modules/ffmpeg-static/**"
   ]
 }
-
 }

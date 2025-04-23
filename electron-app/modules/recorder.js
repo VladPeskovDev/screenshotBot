@@ -1,93 +1,59 @@
 const fs = require('fs');
+const os = require('os');
 const path = require('path');
 const { exec } = require('child_process');
 const axios = require('../internal/axiosInstance');
 const { getTelegramChatId, getAudioPrompt, getGptModel } = require('./telegram');
-const { ipcMain } = require('electron');
+const { ipcMain, app } = require('electron');
 const FormData = require('form-data');
-const ffmpegPath = require('ffmpeg-static'); 
 
-const audioFilePath = path.join('/tmp', 'recorded_audio.wav');
-let recordingProcess = null;
-let recordingTimeout = null;
-
-// 🎙️ Начинаем запись до 30 секунд
-async function startRecording() {
-  return new Promise((resolve) => {
-    console.log('🎙 Начинаем запись через FFmpeg…');
-    const cmd = `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 30 "${audioFilePath}"`;
-
-    // Просто запускаем процесс без колбэка
-    recordingProcess = exec(cmd);
-
-    // Логируем только если ffmpeg не смог запуститься
-    recordingProcess.on('error', (err) => {
-      console.error('❌ Не удалось запустить FFmpeg:', err.message);
-      ipcMain.emit('log-message', null, {
-        type: 'error',
-        message: `Ошибка при старте записи: ${err.message}`,
-      });
-    });
-
-    resolve();
-  });
+// Determine ffmpeg path and ensure unpacked
+let ffmpegPath = require('ffmpeg-static');
+if (app.isPackaged) {
+  ffmpegPath = ffmpegPath.replace(`${path.sep}app.asar${path.sep}`, `${path.sep}app.asar.unpacked${path.sep}`);
 }
 
+const audioFilePath = path.join(os.tmpdir(), 'recorded_audio.wav');
+let recordingProcess = null;
 
-// 🛑 Останавливаем запись и отправляем файл
+// 🎙️ Start recording (up to 30 seconds)
+async function startRecording() {
+  recordingProcess = exec(
+    `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 30 "${audioFilePath}"`
+  );
+}
+
+// 🛑 Stop recording and send file
 async function stopRecording() {
-  return new Promise((resolve, reject) => {
-    console.log('🛑 Останавливаем запись...');
+  return new Promise((resolve) => {
     if (!recordingProcess) {
-      const msg = 'Запись не начата.';
-      ipcMain.emit('log-message', null, { type: 'error', message: msg });
-      return reject(msg);
+      return resolve();
     }
-
     recordingProcess.kill('SIGINT');
     recordingProcess = null;
-
     setTimeout(async () => {
       if (!fs.existsSync(audioFilePath)) {
-        const msg = 'Файл записи не найден.';
-        ipcMain.emit('log-message', null, { type: 'error', message: msg });
-        return reject(msg);
+        return resolve();
       }
-
       const success = await sendAudioToServer(audioFilePath);
-      ipcMain.emit('log-message', null, {
-        type: success ? 'info' : 'error',
-        message: success
-          ? 'Аудио успешно отправлено на сервер.'
-          : 'Не удалось отправить аудио на сервер.',
-      });
-
-      try {
-        fs.unlinkSync(audioFilePath);
-        console.log('🧹 Временный аудиофайл удалён:', audioFilePath);
-      } catch (err) {
-        console.warn('⚠️ Не удалось удалить аудиофайл:', err.message);
+      if (success) {
+        ipcMain.emit('log-message', null, {
+          type: 'info',
+          message: 'Аудио успешно отправлено на сервер.',
+        });
       }
-
+      fs.unlink(audioFilePath, () => {});
       resolve();
-    }, 500);
+    }, 2000);
   });
 }
 
-// 📤 Отправляем файл на сервер
+// 📤 Send file to server
 async function sendAudioToServer(filePath) {
   try {
     const chatId = getTelegramChatId();
     const audioPrompt = getAudioPrompt();
     const gptModel = getGptModel() || 'gpt-mini';
-
-    if (!chatId) {
-      ipcMain.emit('log-message', null, {
-        type: 'error',
-        message: 'TELEGRAM_CHAT_ID не задан. Аудио не отправлено.',
-      });
-      return false;
-    }
 
     const formData = new FormData();
     formData.append('file', fs.createReadStream(filePath));
@@ -103,21 +69,13 @@ async function sendAudioToServer(filePath) {
       headers: formData.getHeaders(),
       maxBodyLength: Infinity,
     });
-
     return true;
-  } catch (error) {
-    console.error('❌ Ошибка при отправке аудио на сервер:', error.message);
-    ipcMain.emit('log-message', null, {
-      type: 'error',
-      message: `Ошибка при отправке аудио: ${error.message}`,
-    });
+  } catch {
     return false;
   }
 }
 
 module.exports = { startRecording, stopRecording };
-
-
 
 
 
