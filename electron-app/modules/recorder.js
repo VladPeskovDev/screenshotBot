@@ -19,7 +19,7 @@ let recordingProcess = null;
 // 🎙️ Start recording (up to 30 seconds)
 async function startRecording() {
   recordingProcess = exec(
-    `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 30 "${audioFilePath}"`
+    `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 55 "${audioFilePath}"`
   );
 }
 
