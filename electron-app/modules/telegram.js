@@ -13,6 +13,7 @@ const defaultSettings = {
   mode: 'helper', // helper | direct
   directToken: '',
   directChatId: '',
+  overlayEffectEnabled: false,
 };
 
 // Загружаем настройки из файла (или создаём файл, если его нет)
@@ -99,6 +100,15 @@ function setGptModel(value) {
   saveSettings(settings);
 }
 
+function getOverlayEffectEnabled() {
+  return settings.overlayEffectEnabled;
+}
+
+function setOverlayEffectEnabled(value) {
+  settings.overlayEffectEnabled = value;
+  saveSettings(settings);
+}
+
 module.exports = {
   getTelegramChatId,
   getAudioPrompt,
@@ -107,6 +117,7 @@ module.exports = {
   getDirectToken,
   getDirectChatId,
   getGptModel,
+  getOverlayEffectEnabled,
   setTelegramChatId,
   setAudioPrompt,
   setScreenshotPrompt,
@@ -114,6 +125,7 @@ module.exports = {
   setDirectToken,
   setDirectChatId,
   setGptModel,
+  setOverlayEffectEnabled,
 };
 
 

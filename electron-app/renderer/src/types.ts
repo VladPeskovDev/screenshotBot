@@ -6,5 +6,6 @@ export type AppSettings = {
     directToken?: string;
     directChatId?: string;
     gptModel?: 'GPT-o3-mini' | 'GPT-4о' | 'GPT-4o-mini' | 'GPT-o1';
+    overlayEffectEnabled: boolean;
   };
   

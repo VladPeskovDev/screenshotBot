@@ -17,30 +17,43 @@
 .formGroup {
   display: flex;
   flex-direction: column;
+  align-items: center; /* выравниваем по центру */
+  width: 100%;
 }
 
 .label {
   font-weight: 600;
   margin-bottom: 6px;
   color: #f5f5f6;
+  width: 100%;
+  max-width: 400px;
+  text-align: left;
 }
 
 .input,
-.textarea {
-  padding: 10px;
+.textarea,
+.select,
+.switchCard {
+  width: 100%;
+  max-width: 400px; /* одинаковая ширина */
+  padding: 12px;
   border: 1px solid #ccc;
   border-radius: 8px;
   font-size: 15px;
   font-family: -apple-system, BlinkMacSystemFont, sans-serif;
   background-color: #fff;
   color: #000;
+  box-sizing: border-box;
+}
+
+.textarea {
   resize: vertical;
-  opacity: 0.7;
-  transition: opacity 0.2s ease;
+  min-height: 100px;
 }
 
 .input:hover,
-.textarea:hover {
+.textarea:hover,
+.select:hover {
   opacity: 1;
 }
 
@@ -55,7 +68,7 @@
   transition: background 0.2s ease;
   width: 100%;
   margin-top: 8px;
-  opacity: 0.70;
+  opacity: 0.7;
 }
 
 .button:hover {
@@ -65,6 +78,9 @@
 .modeButtons {
   display: flex;
   gap: 10px;
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
 }
 
 .modeButton {
@@ -89,3 +105,82 @@
   border-color: #007aff;
   opacity: 1;
 }
+
+/* Переключатель карточка */
+.switchCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #ccc;
+  background: transparent;
+  box-sizing: border-box;
+}
+
+.switchContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.switchTitle {
+  font-weight: 600;
+  font-size: 15px;
+  color: #ffffff;
+}
+
+.switchDescription {
+  font-size: 13px;
+  color: #d0d0d0;
+  margin-top: 4px;
+  max-width: 300px;
+}
+
+/* Переключатель (Switch) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.4s;
+  border-radius: 34px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #007aff;
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+

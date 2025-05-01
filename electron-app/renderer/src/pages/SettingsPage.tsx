@@ -13,6 +13,8 @@ const SettingsPage: React.FC = () => {
   const [directChatId, setDirectChatId] = useState('');
   const [gptModel, setGptModel] = useState<'GPT-o3-mini' | 'GPT-4о' | 'GPT-4o-mini' | 'GPT-o1'>('GPT-4о');
 
+  // 🔥 Новое состояние для эффекта мигания
+  const [overlayEffectEnabled, setOverlayEffectEnabled] = useState(false);
 
   const navigate = useNavigate();
 
@@ -25,11 +27,21 @@ const SettingsPage: React.FC = () => {
       if (data.directToken) setDirectToken(data.directToken);
       if (data.directChatId) setDirectChatId(data.directChatId);
       if (data.gptModel) setGptModel(data.gptModel);
+      if (data.overlayEffectEnabled !== undefined) setOverlayEffectEnabled(data.overlayEffectEnabled);
     });
   }, []);
 
   const handleSave = () => {
-    saveSettings(chatId, audioPrompt, screenshotPrompt, mode, directToken, directChatId, gptModel);
+    saveSettings(
+      chatId,
+      audioPrompt,
+      screenshotPrompt,
+      mode,
+      directToken,
+      directChatId,
+      gptModel,
+      overlayEffectEnabled
+    );
     sendLogMessage('info', '✅ Настройки успешно сохранены.');
   };
 
@@ -81,21 +93,21 @@ const SettingsPage: React.FC = () => {
 
       {mode === 'helper' && (
         <>
-        <div className={styles.formGroup}>
-         <label className={styles.label}>Модель GPT:</label>
-          <select
-             className={styles.input}
-             value={gptModel}
-             onChange={(e) => setGptModel(e.target.value as never)}
+          <div className={styles.formGroup}>
+            <label className={styles.label}>Модель GPT:</label>
+            <select
+              className={`${styles.input} ${styles.select}`} // добавили класс select
+              value={gptModel}
+              onChange={(e) => setGptModel(e.target.value as never)}
             >
-            <option value="GPT-o3-mini">GPT-o3-mini</option>
-            <option value="GPT-4о">GPT-4о</option>
-            <option value="GPT-4o-mini">GPT-4o-mini</option>
-            <option value="GPT-o1">GPT-o1</option>
+              <option value="GPT-o3-mini">GPT-o3-mini</option>
+              <option value="GPT-4о">GPT-4о</option>
+              <option value="GPT-4o-mini">GPT-4o-mini</option>
+              <option value="GPT-o1">GPT-o1</option>
             </select>
-        </div>
+          </div>
 
-        <div className={styles.formGroup}>
+          <div className={styles.formGroup}>
             <label className={styles.label}>Telegram ID:</label>
             <input
               className={styles.input}
@@ -109,7 +121,7 @@ const SettingsPage: React.FC = () => {
             <label className={styles.label}>Доп. промпт к аудио:</label>
             <textarea
               className={styles.textarea}
-              placeholder="Введите дополнительный системный промт к аудио"
+              placeholder="Введите дополнительный системный промпт к аудио"
               value={audioPrompt}
               onChange={(e) => setAudioPrompt(e.target.value)}
             />
@@ -119,7 +131,7 @@ const SettingsPage: React.FC = () => {
             <label className={styles.label}>Доп. промпт к скриншоту:</label>
             <textarea
               className={styles.textarea}
-              placeholder="Введите дополнительный системный промт к скриншоту"
+              placeholder="Введите дополнительный системный промпт к скриншоту"
               value={screenshotPrompt}
               onChange={(e) => setScreenshotPrompt(e.target.value)}
             />
@@ -127,10 +139,33 @@ const SettingsPage: React.FC = () => {
         </>
       )}
 
+<div className={styles.formGroup}>
+  <div className={styles.switchCard}>
+    <div className={styles.switchContent}>
+      <div>
+        <div className={styles.switchTitle}>✨ Эффект мигания экрана</div>
+        <div className={styles.switchDescription}>
+          При старте/остановке записи и при скриншотах экран будет слегка мигать для визуального подтверждения.
+        </div>
+      </div>
+      <label className={styles.switch}>
+        <input
+          type="checkbox"
+          checked={overlayEffectEnabled}
+          onChange={(e) => setOverlayEffectEnabled(e.target.checked)}
+        />
+        <span className={styles.slider}></span>
+      </label>
+    </div>
+  </div>
+</div>
+
       <button className={styles.button} onClick={handleSave}>
         Сохранить
       </button>
-      <button className={styles.button} onClick={() => navigate('/')}>В меню</button>
+      <button className={styles.button} onClick={() => navigate('/')}>
+        В меню
+      </button>
     </div>
   );
 };

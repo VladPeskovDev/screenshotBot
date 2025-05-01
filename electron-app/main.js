@@ -1,9 +1,12 @@
 const fs = require('fs');
 const path = require('path');
-const { app, globalShortcut, BrowserWindow, ipcMain } = require('electron');
+const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require('electron');
 const { sendScreenshot } = require('./modules/screenshot');
 const { startRecording, stopRecording } = require('./modules/recorder');
-const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt,
+const {
+  setTelegramChatId,
+  setAudioPrompt,
+  setScreenshotPrompt,
   getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
@@ -15,22 +18,69 @@ const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt,
   getDirectToken,
   setDirectToken,
   setDirectChatId,
+  getOverlayEffectEnabled,        
+  setOverlayEffectEnabled, 
 } = require('./modules/telegram');
 
-// ===== Logging to file in production/main process =====
-const mainLogPath = path.join(app.getPath('userData'), 'main-log.txt');
+// ===== Логи которые пишем в файл  =====
+/* const mainLogPath = path.join(app.getPath('userData'), 'main-log.txt');
 const mainLogStream = fs.createWriteStream(mainLogPath, { flags: 'a' });
 const mlog = (...args) => {
   const msg = args.map(String).join(' ');
-  mainLogStream.write(`[\${new Date().toISOString()}] \${msg}\n`);
+  mainLogStream.write(`[${new Date().toISOString()}] ${msg}\n`);
 };
 console.log = mlog;
-console.error = (...args) => mlog('[ERROR]', ...args);
+console.error = (...args) => mlog('[ERROR]', ...args); */
 
-console.log('🟢 main.js loaded');
 
 let isRecording = false;
 let settingsWindow = null;
+
+// === Новое: состояние overlayEffectEnabled берем из настроек юзера===
+let overlayEffectEnabled = getOverlayEffectEnabled();
+
+//функция: показываем эффект мигания 
+function showOverlayEffect() {
+  if (!overlayEffectEnabled) {
+    return;
+  }
+
+  // Определяем размеры основного экрана
+  const primaryDisplay = screen.getPrimaryDisplay();
+  const { width, height } = primaryDisplay.workAreaSize;
+
+  const overlayWindow = new BrowserWindow({
+    width,
+    height,
+    x: 0,
+    y: 0,
+    transparent: true,
+    frame: false,
+    alwaysOnTop: true,
+    focusable: false,
+    hasShadow: false,
+    skipTaskbar: true,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+
+  overlayWindow.loadURL(`data:text/html,
+    <style>
+      html, body {
+        margin: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.07);
+      }
+    </style>
+  `);
+
+  setTimeout(() => {
+    if (!overlayWindow.isDestroyed()) overlayWindow.close();
+  }, 200);
+}
 
 function createSettingsWindow() {
   if (settingsWindow) {
@@ -40,7 +90,7 @@ function createSettingsWindow() {
 
   settingsWindow = new BrowserWindow({
     width: 500,
-    height: 550,
+    height: 565,
     titleBarStyle: 'hiddenInset',
     autoHideMenuBar: true,
     webPreferences: {
@@ -53,7 +103,7 @@ function createSettingsWindow() {
     ? 'http://localhost:5173'
     : `file://${path.join(__dirname, 'renderer', 'dist', 'index.html')}`;
 
-  console.log('🔗 Loading UI from:', rendererUrl);
+  //console.log('🔗 Loading UI from:', rendererUrl);
   settingsWindow.loadURL(rendererUrl);
 
   settingsWindow.on('close', (event) => {
@@ -74,47 +124,50 @@ function toggleSettingsWindow() {
 }
 
 app.whenReady().then(() => {
-  console.log('🎉 app.whenReady');
-
   const ok1 = globalShortcut.register('CommandOrControl+Shift+S', toggleSettingsWindow);
-  console.log('🔑 register CommandOrControl+Shift+S:', ok1);
-
   const ok2 = globalShortcut.register('CommandOrControl+Left', () => {
-    console.log('⌨️ Shortcut Left pressed');
     const mode = getMode();
     if (mode === 'direct') {
-      console.log('📷 direct mode screenshot');
       const { sendDirectScreenshot } = require('./modules/direct');
       sendDirectScreenshot();
     } else {
-      console.log('📷 normal mode screenshot');
       sendScreenshot();
     }
+    showOverlayEffect();
   });
-  console.log('🔑 register CommandOrControl+Left:', ok2);
 
   const ok3 = globalShortcut.register('CommandOrControl+Up', async () => {
-    console.log('⌨️ Shortcut Up pressed, isRecording=', isRecording);
     ipcMain.emit('log-message', null, {
       type: 'info',
       message: isRecording ? '⏹ Остановка записи' : '▶️ Начало записи',
     });
     if (isRecording) {
+      showOverlayEffect();
       await stopRecording();
+      showOverlayEffect();
     } else {
       await startRecording();
     }
     isRecording = !isRecording;
-    console.log('🛑 isRecording now=', isRecording);
+    
+    showOverlayEffect();
   });
-  console.log('🔑 register CommandOrControl+Up:', ok3);
 });
 
 app.dock && app.dock.hide();
 
 ipcMain.on('save-settings', (event, settings) => {
-  console.log('💾 save-settings:', settings);
-  const { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel } = settings;
+  const {
+    chatId,
+    prompt,
+    screenshotPrompt,
+    mode,
+    directToken,
+    directChatId,
+    gptModel,
+    overlayEffectEnabled: overlayEnabled, 
+  } = settings;
+
   setTelegramChatId(chatId);
   setAudioPrompt(prompt);
   setScreenshotPrompt(screenshotPrompt);
@@ -122,10 +175,13 @@ ipcMain.on('save-settings', (event, settings) => {
   if (directToken) setDirectToken(directToken);
   if (directChatId) setDirectChatId(directChatId);
   if (gptModel) setGptModel(gptModel);
+  if (typeof overlayEnabled === 'boolean') {
+    setOverlayEffectEnabled(overlayEnabled); 
+    overlayEffectEnabled = overlayEnabled;
+  }
 });
 
 ipcMain.handle('load-settings', () => {
-  console.log('💾 load-settings');
   return {
     chatId: getTelegramChatId(),
     prompt: getAudioPrompt(),
@@ -134,11 +190,11 @@ ipcMain.handle('load-settings', () => {
     directToken: getDirectToken(),
     directChatId: getDirectChatId(),
     gptModel: getGptModel(),
+    overlayEffectEnabled, 
   };
 });
 
 ipcMain.on('quit-app', () => {
-  console.log('🚪 quit-app');
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
   app.exit(0);
@@ -150,9 +206,10 @@ ipcMain.on('log-message', (event, log) => {
 });
 
 app.on('will-quit', () => {
-  console.log('🚪 will-quit, unregisterAll shortcuts');
   globalShortcut.unregisterAll();
 });
+
+
 
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.

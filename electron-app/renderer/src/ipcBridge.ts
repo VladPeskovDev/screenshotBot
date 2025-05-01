@@ -7,7 +7,8 @@ export const saveSettings = (
   mode: string,
   directToken: string,
   directChatId: string,
-  gptModel: string
+  gptModel: string,
+  overlayEffectEnabled: boolean // 🆕 новый параметр
 ) => {
   window.electronAPI?.saveSettings({
     chatId,
@@ -16,13 +17,11 @@ export const saveSettings = (
     mode,
     directToken,
     directChatId,
-    gptModel
+    gptModel,
+    overlayEffectEnabled // 🆕 передаём
   });
 };
 
-
-  
-  
 export const loadSettings = (): Promise<AppSettings> => {
   if (window.electronAPI?.loadSettings) {
     return window.electronAPI.loadSettings() as Promise<AppSettings>; 
@@ -36,14 +35,14 @@ export const loadSettings = (): Promise<AppSettings> => {
     directToken: '',
     directChatId: '',
     gptModel: 'GPT-4о',
+    overlayEffectEnabled: false // 🆕 по умолчанию false
   });
 };
-
 
 export const sendLogMessage = (type: 'info' | 'error', message: string) => {
   window.electronAPI?.sendLog?.({ type, message });
 };
 
-  export const quitApp = () => {
-    window.electronAPI?.quitApp();
-  };
+export const quitApp = () => {
+  window.electronAPI?.quitApp();
+};
