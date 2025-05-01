@@ -3,11 +3,7 @@ const path = require('path');
 const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require('electron');
 const { sendScreenshot } = require('./modules/screenshot');
 const { startRecording, stopRecording } = require('./modules/recorder');
-const {
-  setTelegramChatId,
-  setAudioPrompt,
-  setScreenshotPrompt,
-  getTelegramChatId,
+const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
   getGptModel,
@@ -21,6 +17,7 @@ const {
   getOverlayEffectEnabled,        
   setOverlayEffectEnabled, 
 } = require('./modules/telegram');
+const { showOverlayEffect } = require('./utils/overlayEffect');
 
 // ===== Логи которые пишем в файл  =====
 /* const mainLogPath = path.join(app.getPath('userData'), 'main-log.txt');
@@ -38,49 +35,6 @@ let settingsWindow = null;
 
 // === Новое: состояние overlayEffectEnabled берем из настроек юзера===
 let overlayEffectEnabled = getOverlayEffectEnabled();
-
-//функция: показываем эффект мигания 
-function showOverlayEffect() {
-  if (!overlayEffectEnabled) {
-    return;
-  }
-
-  // Определяем размеры основного экрана
-  const primaryDisplay = screen.getPrimaryDisplay();
-  const { width, height } = primaryDisplay.workAreaSize;
-
-  const overlayWindow = new BrowserWindow({
-    width,
-    height,
-    x: 0,
-    y: 0,
-    transparent: true,
-    frame: false,
-    alwaysOnTop: true,
-    focusable: false,
-    hasShadow: false,
-    skipTaskbar: true,
-    webPreferences: {
-      nodeIntegration: false,
-      contextIsolation: true,
-    },
-  });
-
-  overlayWindow.loadURL(`data:text/html,
-    <style>
-      html, body {
-        margin: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(0, 0, 0, 0.07);
-      }
-    </style>
-  `);
-
-  setTimeout(() => {
-    if (!overlayWindow.isDestroyed()) overlayWindow.close();
-  }, 200);
-}
 
 function createSettingsWindow() {
   if (settingsWindow) {
@@ -133,7 +87,9 @@ app.whenReady().then(() => {
     } else {
       sendScreenshot();
     }
-    showOverlayEffect();
+    //showOverlayEffect();
+    showOverlayEffect(overlayEffectEnabled);
+
   });
 
   const ok3 = globalShortcut.register('CommandOrControl+Up', async () => {
@@ -142,15 +98,16 @@ app.whenReady().then(() => {
       message: isRecording ? '⏹ Остановка записи' : '▶️ Начало записи',
     });
     if (isRecording) {
-      showOverlayEffect();
+      //showOverlayEffect();
+      showOverlayEffect(overlayEffectEnabled);
       await stopRecording();
-      showOverlayEffect();
     } else {
       await startRecording();
     }
     isRecording = !isRecording;
-    
-    showOverlayEffect();
+    showOverlayEffect(overlayEffectEnabled);
+
+    //showOverlayEffect();
   });
 });
 
@@ -203,6 +160,9 @@ ipcMain.on('quit-app', () => {
 ipcMain.on('log-message', (event, log) => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((win) => win.webContents.send('log-from-main', log));
+});
+
+app.on('window-all-closed', (event) => {
 });
 
 app.on('will-quit', () => {
