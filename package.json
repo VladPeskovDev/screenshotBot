@@ -1,6 +1,6 @@
 {
   "name": "hack-sobes",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "electron-app/main.js",
   "scripts": {
@@ -35,30 +35,30 @@
     "@types/react": "^19.0.12",
     "@types/react-dom": "^19.0.4",
     "concurrently": "^9.1.2",
-    "electron": "^34.0.0",
+    "electron": "^34.5.4",
     "electron-builder": "^25.1.8",
     "typescript": "^5.8.2",
     "wait-on": "^8.0.3",
     "wait-port": "^1.1.0"
   },
   "build": {
-  "appId": "ru.tgqueue.hacksobes",
-  "productName": "HackSobes",
-  "mac": {
-    "icon": "electron-app/icon/icon.icns",
-    "target": [
-      {
-        "target": "dmg"
-      }
-    ],
-    "extendInfo": {
-      "LSUIElement": "1",
-      "NSMicrophoneUsageDescription": "Приложению требуется доступ к микрофону для записи аудио."
+    "appId": "ru.tgqueue.hacksobes",
+    "productName": "HackSobes",
+    "mac": {
+      "icon": "electron-app/icon/icon.icns",
+      "target": [
+        {
+          "target": "dmg"
+        }
+      ],
+      "extendInfo": {
+        "LSUIElement": "1",
+        "NSMicrophoneUsageDescription": "Приложению требуется доступ к микрофону для записи аудио."
+      },
+      "category": "public.app-category.utilities"
     },
-    "category": "public.app-category.utilities"
-  },
-  "asarUnpack": [
-    "**/node_modules/ffmpeg-static/**"
-  ]
-}
+    "asarUnpack": [
+      "**/node_modules/ffmpeg-static/**"
+    ]
+  }
 }
