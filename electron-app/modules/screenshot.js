@@ -3,6 +3,7 @@ const FormData = require('form-data');
 const axios = require('../internal/axiosInstance');
 const { getTelegramChatId, getScreenshotPrompt, getGptModel } = require('./telegram');
 const { ipcMain } = require('electron');
+const { sendOverlayText } = require('../utils/overlayMessenger');
 
 async function sendScreenshot() {
   try {
@@ -30,12 +31,18 @@ async function sendScreenshot() {
     if (gptModel === 'GPT-4o-mini') endpoint = '/api/imagebot/external/image-process-GPT-4o-mini';
     if (gptModel === 'GPT-o1') endpoint = '/api/imagebot/external/image-process-GPT-o1';
 
-    await axios.post(endpoint, form, { headers: form.getHeaders() });
+    const response = await axios.post(endpoint, form, { headers: form.getHeaders() });
 
     ipcMain.emit('log-message', null, {
       type: 'info',
       message: 'Скриншот успешно отправлен.',
     });
+
+    const replyText = response.data?.reply?.trim();
+    if (replyText) {
+      //console.log('[screenshot] server reply:', replyText);
+      sendOverlayText(replyText);
+    }
   } catch (error) {
     console.error('❌ Ошибка при отправке скриншота:', error.message);
     ipcMain.emit('log-message', null, {

@@ -33,6 +33,7 @@ declare global {
        * @param callback Функция, принимающая новый текст для отображения
        */
       onUpdateText: (callback: (newText: string) => void) => void;
+      onCommand?: (callback: (cmd: string) => void) => void;
     };
   }
 }

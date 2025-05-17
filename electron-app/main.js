@@ -65,7 +65,9 @@ function createOverlayWindow() {
     },
   });
 
-  overlayWindow.setIgnoreMouseEvents(true);
+  //overlayWindow.setIgnoreMouseEvents(true);
+  overlayWindow.setIgnoreMouseEvents(true, { forward: true }); 
+
   overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
@@ -168,7 +170,20 @@ app.whenReady().then(() => {
   });
 
   globalShortcut.register("CommandOrControl+Shift+/", toggleOverlayWindow);
+
+  globalShortcut.register('Down', () => {
+  if (overlayWindow && overlayWindow.isVisible()) {
+    overlayWindow.webContents.send('overlay-command', 'scroll-down');
+  }
 });
+
+globalShortcut.register('Up', () => {
+  if (overlayWindow && overlayWindow.isVisible()) {
+    overlayWindow.webContents.send('overlay-command', 'scroll-up');
+  }
+});
+});
+
 
 app.dock && app.dock.hide();
 
@@ -239,5 +254,5 @@ app.on("will-quit", () => {
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
 CommandOrControl+Up – Начать / Остановить запись.
-CommandOrControl+Shift+/ - Открыть / Закрыть окно overlay.
+CommandOrControl+Shift+/ - Открыть или Закрыть окно overlay.
 */
