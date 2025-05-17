@@ -11,8 +11,8 @@ declare global {
         directToken: string;
         directChatId: string;
         gptModel: string;
-        overlayEffectEnabled: boolean; // 🆕 добавили
-      }) => void;      
+        overlayEffectEnabled: boolean;
+      }) => void;
       loadSettings: () => Promise<{
         chatId: string;
         prompt: string;
@@ -21,12 +21,30 @@ declare global {
         directToken: string;
         directChatId: string;
         gptModel: string;
-        overlayEffectEnabled: boolean; // 🆕 добавили
+        overlayEffectEnabled: boolean;
       }>;
       onLogMessage: (callback: (log: { type: string; message: string }) => void) => void;
       sendLog: (log: { type: string; message: string }) => void;
       quitApp: () => void;
     };
+    overlayBridge?: {
+      /**
+       * Регистрирует колбэк для обновления текста в overlay
+       * @param callback Функция, принимающая новый текст для отображения
+       */
+      onUpdateText: (callback: (newText: string) => void) => void;
+    };
   }
 }
+
+export type AppSettings = {
+  chatId: string;
+  prompt: string;
+  screenshotPrompt: string;
+  mode: 'helper' | 'direct';
+  directToken?: string;
+  directChatId?: string;
+  gptModel?: 'GPT-o3-mini' | 'GPT-4о' | 'GPT-4o-mini' | 'GPT-o1';
+  overlayEffectEnabled: boolean;
+};
 

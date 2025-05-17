@@ -1,6 +1,6 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'path'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import { resolve } from 'path';
 
 export default defineConfig({
   base: './',
@@ -9,14 +9,20 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     target: 'chrome114',
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),         // главный интерфейс
+        overlay: resolve(__dirname, 'overlay.html'),     // оверлейное окно
+      },
+    },
   },
   server: {
     port: 5173,
-    strictPort: true
+    strictPort: true,
   },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, 'src'),
+      '@': resolve(__dirname, 'src'),
     },
   },
-})
+});

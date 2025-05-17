@@ -1,9 +1,19 @@
-const fs = require('fs');
-const path = require('path');
-const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require('electron');
-const { sendScreenshot } = require('./modules/screenshot');
-const { startRecording, stopRecording } = require('./modules/recorder');
-const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId,
+const fs = require("fs");
+const path = require("path");
+const {
+  app,
+  globalShortcut,
+  BrowserWindow,
+  ipcMain,
+  screen,
+} = require("electron");
+const { sendScreenshot } = require("./modules/screenshot");
+const { startRecording, stopRecording } = require("./modules/recorder");
+const {
+  setTelegramChatId,
+  setAudioPrompt,
+  setScreenshotPrompt,
+  getTelegramChatId,
   getAudioPrompt,
   getScreenshotPrompt,
   getGptModel,
@@ -14,27 +24,76 @@ const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatI
   getDirectToken,
   setDirectToken,
   setDirectChatId,
-  getOverlayEffectEnabled,        
-  setOverlayEffectEnabled, 
-} = require('./modules/telegram');
-const { showOverlayEffect } = require('./utils/overlayEffect');
-
-// ===== Логи которые пишем в файл  =====
-/* const mainLogPath = path.join(app.getPath('userData'), 'main-log.txt');
-const mainLogStream = fs.createWriteStream(mainLogPath, { flags: 'a' });
-const mlog = (...args) => {
-  const msg = args.map(String).join(' ');
-  mainLogStream.write(`[${new Date().toISOString()}] ${msg}\n`);
-};
-console.log = mlog;
-console.error = (...args) => mlog('[ERROR]', ...args); */
+  getOverlayEffectEnabled,
+  setOverlayEffectEnabled,
+} = require("./modules/telegram");
+const { showOverlayEffect } = require("./utils/overlayEffect");
+const { registerOverlayWindow, getLastOverlayText } = require("./utils/overlayMessenger");
 
 
 let isRecording = false;
 let settingsWindow = null;
-
-// === Новое: состояние overlayEffectEnabled берем из настроек юзера===
+let overlayWindow = null;
 let overlayEffectEnabled = getOverlayEffectEnabled();
+
+function createOverlayWindow() {
+  if (overlayWindow) return;
+  const { width } = screen.getPrimaryDisplay().workAreaSize;
+
+  const offsetX = 75;
+  const panelWidth = 600;
+  const x = Math.floor((width - panelWidth) / 2) - offsetX;
+
+  overlayWindow = new BrowserWindow({
+    width: 900,
+    height: 90,
+    x,
+    y: 80,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    skipTaskbar: true,
+    focusable: false,
+    hasShadow: false,
+    resizable: false,
+    fullscreenable: false,
+    show: false,
+    vibrancy: "ultra-dark",
+    webPreferences: {
+      contextIsolation: true,
+      preload: path.join(__dirname, "overlay-preload.js"),
+    },
+  });
+
+  overlayWindow.setIgnoreMouseEvents(true);
+  overlayWindow.setAlwaysOnTop(true, "screen-saver");
+  overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
+
+  const overlayUrl = app.isPackaged
+    ? `file://${path.join(__dirname, "renderer", "dist", "overlay.html")}`
+    : "http://localhost:5173/overlay.html";
+
+  overlayWindow.loadURL(overlayUrl);
+
+  overlayWindow.on("closed", () => {
+    overlayWindow = null;
+  });
+
+  registerOverlayWindow(overlayWindow);
+}
+
+function toggleOverlayWindow() {
+  if (!overlayWindow) {
+    createOverlayWindow();
+  } else {
+    overlayWindow.isVisible() ? overlayWindow.hide() : overlayWindow.show();
+
+    if (overlayWindow.isVisible()) {
+      const text = getLastOverlayText();
+      overlayWindow.webContents.send("update-overlay-text", text);
+    }
+  }
+}
 
 function createSettingsWindow() {
   if (settingsWindow) {
@@ -45,26 +104,26 @@ function createSettingsWindow() {
   settingsWindow = new BrowserWindow({
     width: 500,
     height: 565,
-    titleBarStyle: 'hiddenInset',
+    titleBarStyle: "hiddenInset",
     autoHideMenuBar: true,
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js'),
+      preload: path.join(__dirname, "preload.js"),
     },
   });
 
   const isDev = !app.isPackaged;
   const rendererUrl = isDev
-    ? 'http://localhost:5173'
-    : `file://${path.join(__dirname, 'renderer', 'dist', 'index.html')}`;
+    ? "http://localhost:5173"
+    : `file://${path.join(__dirname, "renderer", "dist", "index.html")}`;
 
-  //console.log('🔗 Loading UI from:', rendererUrl);
   settingsWindow.loadURL(rendererUrl);
 
-  settingsWindow.on('close', (event) => {
+  settingsWindow.on("close", (event) => {
     event.preventDefault();
     settingsWindow.hide();
   });
-  settingsWindow.on('closed', () => {
+
+  settingsWindow.on("closed", () => {
     settingsWindow = null;
   });
 }
@@ -78,27 +137,27 @@ function toggleSettingsWindow() {
 }
 
 app.whenReady().then(() => {
-  const ok1 = globalShortcut.register('CommandOrControl+Shift+S', toggleSettingsWindow);
-  const ok2 = globalShortcut.register('CommandOrControl+Left', () => {
+  createOverlayWindow();
+
+  globalShortcut.register("CommandOrControl+Shift+S", toggleSettingsWindow);
+
+  globalShortcut.register("CommandOrControl+Left", () => {
     const mode = getMode();
-    if (mode === 'direct') {
-      const { sendDirectScreenshot } = require('./modules/direct');
+    if (mode === "direct") {
+      const { sendDirectScreenshot } = require("./modules/direct");
       sendDirectScreenshot();
     } else {
       sendScreenshot();
     }
-    //showOverlayEffect();
     showOverlayEffect(overlayEffectEnabled);
-
   });
 
-  const ok3 = globalShortcut.register('CommandOrControl+Up', async () => {
-    ipcMain.emit('log-message', null, {
-      type: 'info',
-      message: isRecording ? '⏹ Остановка записи' : '▶️ Начало записи',
+  globalShortcut.register("CommandOrControl+Up", async () => {
+    ipcMain.emit("log-message", null, {
+      type: "info",
+      message: isRecording ? "⏹ Остановка записи" : "▶️ Начало записи",
     });
     if (isRecording) {
-      //showOverlayEffect();
       showOverlayEffect(overlayEffectEnabled);
       await stopRecording();
     } else {
@@ -106,14 +165,14 @@ app.whenReady().then(() => {
     }
     isRecording = !isRecording;
     showOverlayEffect(overlayEffectEnabled);
-
-    //showOverlayEffect();
   });
+
+  globalShortcut.register("CommandOrControl+Shift+/", toggleOverlayWindow);
 });
 
 app.dock && app.dock.hide();
 
-ipcMain.on('save-settings', (event, settings) => {
+ipcMain.on("save-settings", (event, settings) => {
   const {
     chatId,
     prompt,
@@ -122,7 +181,7 @@ ipcMain.on('save-settings', (event, settings) => {
     directToken,
     directChatId,
     gptModel,
-    overlayEffectEnabled: overlayEnabled, 
+    overlayEffectEnabled: overlayEnabled,
   } = settings;
 
   setTelegramChatId(chatId);
@@ -132,13 +191,13 @@ ipcMain.on('save-settings', (event, settings) => {
   if (directToken) setDirectToken(directToken);
   if (directChatId) setDirectChatId(directChatId);
   if (gptModel) setGptModel(gptModel);
-  if (typeof overlayEnabled === 'boolean') {
-    setOverlayEffectEnabled(overlayEnabled); 
+  if (typeof overlayEnabled === "boolean") {
+    setOverlayEffectEnabled(overlayEnabled);
     overlayEffectEnabled = overlayEnabled;
   }
 });
 
-ipcMain.handle('load-settings', () => {
+ipcMain.handle("load-settings", () => {
   return {
     chatId: getTelegramChatId(),
     prompt: getAudioPrompt(),
@@ -147,32 +206,38 @@ ipcMain.handle('load-settings', () => {
     directToken: getDirectToken(),
     directChatId: getDirectChatId(),
     gptModel: getGptModel(),
-    overlayEffectEnabled, 
+    overlayEffectEnabled,
   };
 });
 
-ipcMain.on('quit-app', () => {
+ipcMain.on("send-overlay-text", (event, text) => {
+  if (overlayWindow) {
+    overlayWindow.webContents.send("update-overlay-text", text);
+  } else {
+    console.warn("[Main] overlayWindow is null!");
+  }
+});
+
+ipcMain.on("quit-app", () => {
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
   app.exit(0);
 });
 
-ipcMain.on('log-message', (event, log) => {
+ipcMain.on("log-message", (event, log) => {
   const windows = BrowserWindow.getAllWindows();
-  windows.forEach((win) => win.webContents.send('log-from-main', log));
+  windows.forEach((win) => win.webContents.send("log-from-main", log));
 });
 
-app.on('window-all-closed', (event) => {
-});
-
-app.on('will-quit', () => {
+app.on("window-all-closed", () => {});
+app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
-
 
 
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
 CommandOrControl+Up – Начать / Остановить запись.
+CommandOrControl+Shift+/ - Открыть / Закрыть окно overlay.
 */
