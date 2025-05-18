@@ -12,14 +12,6 @@ const Overlay = () => {
     });
   }, []);
 
-  useEffect(() => {
-    window.overlayBridge?.onCommand?.((cmd: string) => {
-      const el = containerRef.current;
-      if (!el) return;
-      if (cmd === 'scroll-down') el.scrollBy({ top: 50, behavior: 'smooth' });
-      if (cmd === 'scroll-up') el.scrollBy({ top: -50, behavior: 'smooth' });
-    });
-  }, []);
 
   return (
     <div className="overlay-container" ref={containerRef}>

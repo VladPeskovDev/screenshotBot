@@ -37,7 +37,7 @@ function showOverlayEffect(overlayEffectEnabled) {
 
     setTimeout(() => {
       if (!overlayWindow.isDestroyed()) overlayWindow.close();
-    }, 150);
+    }, 100);
   } catch (err) {
     console.error('❌ Error in showOverlayEffect:', err);
   }

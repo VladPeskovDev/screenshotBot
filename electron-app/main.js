@@ -1,20 +1,9 @@
 const fs = require("fs");
 const path = require("path");
-const {
-  app,
-  globalShortcut,
-  BrowserWindow,
-  ipcMain,
-  screen,
-} = require("electron");
+const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require("electron");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
-const {
-  setTelegramChatId,
-  setAudioPrompt,
-  setScreenshotPrompt,
-  getTelegramChatId,
-  getAudioPrompt,
+const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt,
   getScreenshotPrompt,
   getGptModel,
   setGptModel,
@@ -65,8 +54,8 @@ function createOverlayWindow() {
     },
   });
 
-  //overlayWindow.setIgnoreMouseEvents(true);
-  overlayWindow.setIgnoreMouseEvents(true, { forward: true }); 
+  overlayWindow.setIgnoreMouseEvents(true);
+  //overlayWindow.setIgnoreMouseEvents(true, { forward: true }); 
 
   overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
@@ -169,19 +158,7 @@ app.whenReady().then(() => {
     showOverlayEffect(overlayEffectEnabled);
   });
 
-  globalShortcut.register("CommandOrControl+Shift+/", toggleOverlayWindow);
-
-  globalShortcut.register('Down', () => {
-  if (overlayWindow && overlayWindow.isVisible()) {
-    overlayWindow.webContents.send('overlay-command', 'scroll-down');
-  }
-});
-
-globalShortcut.register('Up', () => {
-  if (overlayWindow && overlayWindow.isVisible()) {
-    overlayWindow.webContents.send('overlay-command', 'scroll-up');
-  }
-});
+  globalShortcut.register("CommandOrControl+Shift+D", toggleOverlayWindow);
 });
 
 
@@ -254,5 +231,5 @@ app.on("will-quit", () => {
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
 CommandOrControl+Up – Начать / Остановить запись.
-CommandOrControl+Shift+/ - Открыть или Закрыть окно overlay.
+CommandOrControl+Shift+D - Открыть или Закрыть окно overlay.
 */
