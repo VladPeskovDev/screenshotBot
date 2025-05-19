@@ -54,8 +54,9 @@ function createOverlayWindow() {
     },
   });
 
-  overlayWindow.setIgnoreMouseEvents(true);
-  //overlayWindow.setIgnoreMouseEvents(true, { forward: true }); 
+  //overlayWindow.setIgnoreMouseEvents(true);
+  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+
 
   overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
@@ -209,6 +210,21 @@ ipcMain.on("send-overlay-text", (event, text) => {
     console.warn("[Main] overlayWindow is null!");
   }
 });
+
+ipcMain.handle('resize-overlay', (event, { width, height }) => {
+  if (overlayWindow) {
+    overlayWindow.setSize(Math.ceil(width), Math.ceil(height));
+  }
+});
+
+ipcMain.handle('overlay-set-ignore', (event, ignore) => {
+  if (overlayWindow) {
+    // когда ignore=true — все клики и скроллы игнорятся (и форвардятся в apps ниже)
+    // когда ignore=false — окно принимает все события
+    overlayWindow.setIgnoreMouseEvents(ignore, { forward: ignore });
+  }
+});
+
 
 ipcMain.on("quit-app", () => {
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());

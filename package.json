@@ -48,7 +48,7 @@
       "icon": "electron-app/icon/icon.icns",
       "target": [
         {
-          "target": "dmg"
+          "target": "dir"
         }
       ],
       "extendInfo": {

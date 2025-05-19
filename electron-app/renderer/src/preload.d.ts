@@ -28,15 +28,17 @@ declare global {
       quitApp: () => void;
     };
     overlayBridge?: {
-      /**
-       * Регистрирует колбэк для обновления текста в overlay
-       * @param callback Функция, принимающая новый текст для отображения
-       */
-      onUpdateText: (callback: (newText: string) => void) => void;
+      onUpdateText: (callback: (text: string) => void) => void;
       onCommand?: (callback: (cmd: string) => void) => void;
+      // Меняет размер окна
+      resizeOverlay: (width: number, height: number) => Promise<void>;
+      // Включает/выключает игнорирование мышиных событий
+      setIgnoreMouseEvents: (ignore: boolean) => Promise<void>;
     };
   }
 }
+
+
 
 export type AppSettings = {
   chatId: string;
