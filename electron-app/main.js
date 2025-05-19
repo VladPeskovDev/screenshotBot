@@ -30,12 +30,12 @@ function createOverlayWindow() {
   const { width } = screen.getPrimaryDisplay().workAreaSize;
 
   const offsetX = 75;
-  const panelWidth = 600;
+  const panelWidth = 650;
   const x = Math.floor((width - panelWidth) / 2) - offsetX;
 
   overlayWindow = new BrowserWindow({
     width: 900,
-    height: 90,
+    height: 80,
     x,
     y: 80,
     frame: false,
