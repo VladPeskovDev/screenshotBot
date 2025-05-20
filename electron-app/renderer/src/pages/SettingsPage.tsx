@@ -111,7 +111,7 @@ const SettingsPage: React.FC = () => {
             <label className={styles.label}>Telegram ID:</label>
             <input
               className={styles.input}
-              placeholder="Введите Telegram Chat ID"
+              placeholder="Введите Telegram ID"
               value={chatId}
               onChange={(e) => setChatId(e.target.value)}
             />
