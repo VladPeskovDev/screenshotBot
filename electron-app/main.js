@@ -144,7 +144,7 @@ app.whenReady().then(() => {
     showOverlayEffect(overlayEffectEnabled);
   });
 
-  globalShortcut.register("CommandOrControl+Up", async () => {
+  globalShortcut.register("CommandOrControl+Enter", async () => {
     ipcMain.emit("log-message", null, {
       type: "info",
       message: isRecording ? "⏹ Остановка записи" : "▶️ Начало записи",
