@@ -137,3 +137,4 @@ dist
 
 # игнорировать приватные модули
 /electron-app/internal/
+/electron-app/bin/
