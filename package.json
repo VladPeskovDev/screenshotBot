@@ -45,6 +45,9 @@
     "appId": "ru.tgqueue.hacksobes",
     "productName": "HackSobes",
     "mac": {
+      "sign": false,
+"identity": null,
+"hardenedRuntime": false,
       "icon": "electron-app/icon/icon.icns",
       "target": [
         {
