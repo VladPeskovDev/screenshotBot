@@ -15,10 +15,22 @@ const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatI
   setDirectChatId,
   getOverlayEffectEnabled,
   setOverlayEffectEnabled,
+  getMicrophoneIndex,     
+  setMicrophoneIndex 
 } = require("./modules/telegram");
 const { showOverlayEffect } = require("./utils/overlayEffect");
 const { registerOverlayWindow, getLastOverlayText } = require("./utils/overlayMessenger");
+const { execSync } = require("child_process");
+const { spawnSync } = require("child_process");
+let ffmpegPath = require("ffmpeg-static");
 
+
+if (app.isPackaged) {
+  ffmpegPath = ffmpegPath.replace(
+    `${path.sep}app.asar${path.sep}`,
+    `${path.sep}app.asar.unpacked${path.sep}`
+  );
+}
 
 let isRecording = false;
 let settingsWindow = null;
@@ -188,6 +200,9 @@ ipcMain.on("save-settings", (event, settings) => {
     setOverlayEffectEnabled(overlayEnabled);
     overlayEffectEnabled = overlayEnabled;
   }
+  if (settings.microphoneIndex) {
+  setMicrophoneIndex(settings.microphoneIndex);
+}
 });
 
 ipcMain.handle("load-settings", () => {
@@ -199,6 +214,7 @@ ipcMain.handle("load-settings", () => {
     directToken: getDirectToken(),
     directChatId: getDirectChatId(),
     gptModel: getGptModel(),
+    microphoneIndex: getMicrophoneIndex(),
     overlayEffectEnabled,
   };
 });
@@ -224,6 +240,49 @@ ipcMain.handle('overlay-set-ignore', (event, ignore) => {
     overlayWindow.setIgnoreMouseEvents(ignore, { forward: ignore });
   }
 });
+
+ipcMain.handle("list-audio-devices", () => {
+  try {
+    const result = spawnSync(ffmpegPath, ['-f', 'avfoundation', '-list_devices', 'true', '-i', ''], {
+      encoding: 'utf8'
+    });
+
+    const stderr = result.stderr || '';
+    const lines = stderr.split('\n');
+
+    let isAudio = false;
+    const audioDevices = [];
+
+    for (const line of lines) {
+      const trimmed = line.trim();
+
+      if (trimmed.includes("AVFoundation audio devices:")) {
+        isAudio = true;
+        continue;
+      }
+
+      if (trimmed.includes("AVFoundation video devices:")) {
+        isAudio = false;
+        continue;
+      }
+
+      // находим строки типа: [AVFoundation indev @ ...] [0] AirPods
+      if (isAudio && /^\[AVFoundation indev.*\] \[\d+\]/.test(trimmed)) {
+        const cleaned = trimmed.replace(/^.*\[(\d+)\] /, (match, index) => `[${index}] `);
+        audioDevices.push(cleaned);
+      }
+    }
+
+    if (audioDevices.length === 0) {
+      return [`⚠️ Аудиоустройства не найдены.`];
+    }
+
+    return audioDevices;
+  } catch (e) {
+    return [`❌ Ошибка при получении устройств: ${e.message}`];
+  }
+});
+
 
 
 ipcMain.on("quit-app", () => {

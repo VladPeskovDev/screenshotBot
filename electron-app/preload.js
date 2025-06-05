@@ -7,6 +7,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   onLogMessage: (callback) => ipcRenderer.on('log-from-main', (_, data) => callback(data)),
   sendLog: (log) => ipcRenderer.send('log-message', log),
   quitApp: () => ipcRenderer.send('quit-app'),
+  listAudioDevices: () => ipcRenderer.invoke('list-audio-devices'),
 });
 
 

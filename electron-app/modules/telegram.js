@@ -14,6 +14,7 @@ const defaultSettings = {
   directToken: '',
   directChatId: '',
   overlayEffectEnabled: false,
+  microphoneIndex: ':0',
 };
 
 // Загружаем настройки из файла (или создаём файл, если его нет)
@@ -69,6 +70,10 @@ function getGptModel() {
   return settings.gptModel || 'GPT-4о';
 }
 
+function getMicrophoneIndex() {
+  return settings.microphoneIndex || ':0';
+}
+
 // Сеттеры (обновляют JSON-файл)
 function setTelegramChatId(value) {
   settings.telegramChatId = value;
@@ -109,6 +114,11 @@ function setOverlayEffectEnabled(value) {
   saveSettings(settings);
 }
 
+function setMicrophoneIndex(value) {
+  settings.microphoneIndex = value;
+  saveSettings(settings);
+}
+
 module.exports = {
   getTelegramChatId,
   getAudioPrompt,
@@ -126,6 +136,8 @@ module.exports = {
   setDirectChatId,
   setGptModel,
   setOverlayEffectEnabled,
+  getMicrophoneIndex,
+  setMicrophoneIndex
 };
 
 

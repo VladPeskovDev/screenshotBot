@@ -8,6 +8,7 @@ const {
   getTelegramChatId,
   getAudioPrompt,
   getGptModel,
+  getMicrophoneIndex,
 } = require("./telegram");
 const { ipcMain, app } = require("electron");
 const FormData = require("form-data");
@@ -29,9 +30,10 @@ let recordingProcess = null;
 
 // 🎙️ Start recording (up to 55 seconds)
 async function startRecording() {
-  recordingProcess = exec(
-    `"${ffmpegPath}" -y -f avfoundation -i ":0" -ar 16000 -ac 1 -t 55 "${audioFilePath}"`
-  );
+  const microphoneIndex = getMicrophoneIndex() || ":0";
+recordingProcess = exec(
+  `"${ffmpegPath}" -y -f avfoundation -i "${microphoneIndex}" -ar 16000 -ac 1 -t 55 "${audioFilePath}"`
+);
 }
 
 // 🛑 Stop recording and send file
