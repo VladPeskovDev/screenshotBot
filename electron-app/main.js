@@ -3,8 +3,7 @@ const path = require("path");
 const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require("electron");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
-const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt,
-  getScreenshotPrompt,
+const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt, getScreenshotPrompt,
   getGptModel,
   setGptModel,
   setMode,
