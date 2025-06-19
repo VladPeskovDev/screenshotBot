@@ -7,13 +7,13 @@ import type { AppSettings } from '../types';
 const SettingsPage: React.FC = () => {
   const [mode, setMode] = useState<'helper' | 'direct'>('helper');
   const [chatId, setChatId] = useState('');
+  const [isChatIdEditable, setIsChatIdEditable] = useState(false);
   const [audioPrompt, setAudioPrompt] = useState('');
   const [screenshotPrompt, setScreenshotPrompt] = useState('');
   const [directToken, setDirectToken] = useState('');
   const [directChatId, setDirectChatId] = useState('');
   const [gptModel, setGptModel] = useState<'GPT-o3-mini' | 'GPT-4о' | 'GPT-4o-mini' | 'GPT-o1'>('GPT-4о');
   const [overlayEffectEnabled, setOverlayEffectEnabled] = useState(false);
-
   const [microphoneIndex, setMicrophoneIndex] = useState(':0');
   const [audioDevices, setAudioDevices] = useState<string[]>([]);
 
@@ -50,6 +50,20 @@ const SettingsPage: React.FC = () => {
     sendLogMessage('info', '✅ Настройки успешно сохранены.');
   };
 
+  const handleChatIdDoubleClick = () => {
+    setIsChatIdEditable(true);
+  };
+
+  const handleChatIdBlur = () => {
+    setIsChatIdEditable(false);
+    sendLogMessage('info', '🟢 Telegram ID обновлён.');
+  };
+
+  const handleChatIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onlyDigits = e.target.value.replace(/\D/g, '');
+    setChatId(onlyDigits);
+  };
+
   return (
     <div className={styles.container}>
       <h1 className={styles.heading}>Настройки</h1>
@@ -65,8 +79,6 @@ const SettingsPage: React.FC = () => {
           </button>
         </div>
       </div>
-
-      
 
       {mode === 'direct' && (
         <>
@@ -92,10 +104,23 @@ const SettingsPage: React.FC = () => {
               <option value="GPT-o1">GPT-o1</option>
             </select>
           </div>
+
           <div className={styles.formGroup}>
             <label className={styles.label}>Telegram ID:</label>
-            <input className={styles.input} value={chatId} onChange={(e) => setChatId(e.target.value)} />
+            <input
+              className={`${styles.input} ${isChatIdEditable ? styles.editable : styles.disabledInput}`}
+              value={chatId}
+              readOnly={!isChatIdEditable}
+              inputMode="numeric"
+              onDoubleClick={handleChatIdDoubleClick}
+              onChange={handleChatIdChange}
+              onBlur={handleChatIdBlur}
+            />
+            {!isChatIdEditable && (
+              <small style={{ color: '#ccc' }}>Нажмите дважды для редактирования</small>
+            )}
           </div>
+
           <div className={styles.formGroup}>
             <label className={styles.label}>Доп. промпт к аудио:</label>
             <textarea className={styles.textarea} value={audioPrompt} onChange={(e) => setAudioPrompt(e.target.value)} />
@@ -105,13 +130,13 @@ const SettingsPage: React.FC = () => {
             <textarea className={styles.textarea} value={screenshotPrompt} onChange={(e) => setScreenshotPrompt(e.target.value)} />
           </div>
           <div className={styles.formGroup}>
-        <label className={styles.label}>Выбрать микрофон:</label>
-        <select className={`${styles.input} ${styles.select}`} value={microphoneIndex} onChange={(e) => setMicrophoneIndex(e.target.value)}>
-          {audioDevices.map((line, i) => (
-            <option key={i} value={`:${i}`}>{line}</option>
-          ))}
-        </select>
-      </div>
+            <label className={styles.label}>Выбрать микрофон:</label>
+            <select className={`${styles.input} ${styles.select}`} value={microphoneIndex} onChange={(e) => setMicrophoneIndex(e.target.value)}>
+              {audioDevices.map((line, i) => (
+                <option key={i} value={`:${i}`}>{line}</option>
+              ))}
+            </select>
+          </div>
         </>
       )}
 
