@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require('electron');
+const { shell } = require('electron');
 
 // Экспонируем API для сохранения/загрузки настроек и логов
 contextBridge.exposeInMainWorld('electronAPI', {
@@ -8,6 +9,8 @@ contextBridge.exposeInMainWorld('electronAPI', {
   sendLog: (log) => ipcRenderer.send('log-message', log),
   quitApp: () => ipcRenderer.send('quit-app'),
   listAudioDevices: () => ipcRenderer.invoke('list-audio-devices'),
+  checkTelegramId: (id) => ipcRenderer.invoke('check-telegram-id', id),
+  openExternal: (url) => ipcRenderer.invoke('open-external', url),
 });
 
 

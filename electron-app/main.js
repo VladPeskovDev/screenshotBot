@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const { shell } = require('electron');
 const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require("electron");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
@@ -18,6 +19,7 @@ const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatI
   setMicrophoneIndex 
 } = require("./modules/telegram");
 const { showOverlayEffect } = require("./utils/overlayEffect");
+const instance = require('./internal/axiosInstance'); 
 const { registerOverlayWindow, getLastOverlayText } = require("./utils/overlayMessenger");
 const { execSync } = require("child_process");
 const { spawnSync } = require("child_process");
@@ -282,6 +284,24 @@ ipcMain.handle("list-audio-devices", () => {
   }
 });
 
+ipcMain.handle('check-telegram-id', async (event, id) => {
+  try {
+    const response = await instance.get('/api/auth/check-user', { params: { id } });
+    const data = response.data;
+    return {
+      valid: !!data.valid,
+      username: data.username || ''
+    };
+  } catch (error) {
+    console.error('Ошибка при проверке Telegram ID:', error.message);
+    return { valid: false, username: '' };
+  }
+});
+
+ipcMain.handle('open-external', async (_event, url) => {
+  const { shell } = require('electron');
+  await shell.openExternal(url);
+});
 
 
 ipcMain.on("quit-app", () => {

@@ -9,7 +9,7 @@ export const saveSettings = (
   directChatId: string,
   gptModel: string,
   overlayEffectEnabled: boolean,
-  microphoneIndex: string
+  microphoneIndex: string,
 ) => {
   window.electronAPI?.saveSettings({
     chatId,
@@ -20,7 +20,7 @@ export const saveSettings = (
     directChatId,
     gptModel,
     overlayEffectEnabled,
-    microphoneIndex
+    microphoneIndex,
   });
 };
 
@@ -45,6 +45,11 @@ export const loadSettings = (): Promise<AppSettings> => {
 export const sendLogMessage = (type: 'info' | 'error', message: string) => {
   window.electronAPI?.sendLog?.({ type, message });
 };
+
+export const openExternal = (url: string) => {
+  window.electronAPI.openExternal(url);
+};
+
 
 export const quitApp = () => {
   window.electronAPI?.quitApp();

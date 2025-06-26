@@ -27,7 +27,7 @@
     cursor: pointer;
     transition: background 0.2s ease;
     width: 200px;
-    opacity: 0.70;
+    opacity: 0.75;
   }
   
   .button:hover {
@@ -35,10 +35,18 @@
   }
   
   .exit-btn {
-    background: #ff3b30;
+     background: #fff;
+  color: #007aff;
+  border: 1px solid #007aff;
+  font-size: 15px;
+  margin-top: 10px;
+  opacity: 0.75;
+  transition: background 0.2s, color 0.2s;
   }
   
   .exit-btn:hover {
-    background: #d32f2f;
+    background: #f4f9ff;
+  color: #005bbb;
+  opacity: 1;
   }
   

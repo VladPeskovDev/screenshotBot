@@ -3,6 +3,7 @@ export {};
 declare global {
   interface Window {
     electronAPI: {
+      checkTelegramId: (telegramId: string) => Promise<{ valid: boolean; username: string }>;
       saveSettings: (settings: {
         chatId: string;
         prompt: string;
@@ -14,7 +15,6 @@ declare global {
         overlayEffectEnabled: boolean;
         microphoneIndex: string;
       }) => void;
-
       loadSettings: () => Promise<{
         chatId: string;
         prompt: string;
@@ -26,11 +26,10 @@ declare global {
         overlayEffectEnabled: boolean;
         microphoneIndex: string;
       }>;
-
       listAudioDevices: () => Promise<string[]>;
-
       onLogMessage: (callback: (log: { type: string; message: string }) => void) => void;
       sendLog: (log: { type: string; message: string }) => void;
+      openExternal: (url: string) => void;
       quitApp: () => void;
     };
 
@@ -42,6 +41,7 @@ declare global {
     };
   }
 }
+
 
 export type AppSettings = {
   chatId: string;
