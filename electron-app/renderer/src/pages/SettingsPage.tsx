@@ -4,10 +4,13 @@ import { useNavigate } from 'react-router-dom';
 import styles from './SettingsPage.module.css';
 import type { AppSettings } from '../types';
 
+
+
+
 const SettingsPage: React.FC = () => {
   const [mode, setMode] = useState<'helper' | 'direct'>('helper');
   const [chatId, setChatId] = useState('');
-  const [isChatIdEditable, setIsChatIdEditable] = useState(false);
+  //const [isChatIdEditable, setIsChatIdEditable] = useState(false);
   const [audioPrompt, setAudioPrompt] = useState('');
   const [screenshotPrompt, setScreenshotPrompt] = useState('');
   const [directToken, setDirectToken] = useState('');
@@ -50,7 +53,7 @@ const SettingsPage: React.FC = () => {
     sendLogMessage('info', '✅ Настройки успешно сохранены.');
   };
 
-  const handleChatIdDoubleClick = () => {
+  /* const handleChatIdDoubleClick = () => {
     setIsChatIdEditable(true);
   };
 
@@ -62,7 +65,7 @@ const SettingsPage: React.FC = () => {
   const handleChatIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const onlyDigits = e.target.value.replace(/\D/g, '');
     setChatId(onlyDigits);
-  };
+  }; */
 
   return (
     <div className={styles.container}>
@@ -105,7 +108,7 @@ const SettingsPage: React.FC = () => {
             </select>
           </div>
 
-          <div className={styles.formGroup}>
+          {/* <div className={styles.formGroup}>
             <label className={styles.label}>Telegram ID:</label>
             <input
               className={`${styles.input} ${isChatIdEditable ? styles.editable : styles.disabledInput}`}
@@ -119,7 +122,7 @@ const SettingsPage: React.FC = () => {
             {!isChatIdEditable && (
               <small style={{ color: '#ccc' }}>Нажмите дважды для редактирования</small>
             )}
-          </div>
+          </div> */}
 
           <div className={styles.formGroup}>
             <label className={styles.label}>Доп. промпт к аудио:</label>

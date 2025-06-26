@@ -30,6 +30,7 @@ declare global {
       onLogMessage: (callback: (log: { type: string; message: string }) => void) => void;
       sendLog: (log: { type: string; message: string }) => void;
       openExternal: (url: string) => void;
+      getProfile: (chatId: string) => Promise<ProfileData | { error: string }>;
       quitApp: () => void;
     };
 

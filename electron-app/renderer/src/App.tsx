@@ -8,6 +8,8 @@ import ExitPage from './pages/ExitPage';
 import LogPage from './pages/LogPage';
 import AuthPage from './pages/AuthPage';
 import { loadSettings, saveSettings } from './ipcBridge';
+import ProfilePage from './pages/ProfilePage';
+
 
 const router = createHashRouter([
   {
@@ -19,6 +21,7 @@ const router = createHashRouter([
       { path: '/faq', element: <FAQPage /> },
       { path: '/exit', element: <ExitPage /> },
       { path: '/logs', element: <LogPage /> },
+      { path: '/profile', element: <ProfilePage/> },
     ],
   },
 ]);

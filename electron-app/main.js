@@ -298,6 +298,15 @@ ipcMain.handle('check-telegram-id', async (event, id) => {
   }
 });
 
+ipcMain.handle('get-profile', async (_event, chatId) => {
+  try {
+    const response = await instance.post('/api/account', { chatId });
+    return response.data;
+  } catch (error) {
+    return { error: error.message || 'Ошибка загрузки профиля' };
+  }
+});
+
 ipcMain.handle('open-external', async (_event, url) => {
   const { shell } = require('electron');
   await shell.openExternal(url);

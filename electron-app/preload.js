@@ -11,6 +11,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
   listAudioDevices: () => ipcRenderer.invoke('list-audio-devices'),
   checkTelegramId: (id) => ipcRenderer.invoke('check-telegram-id', id),
   openExternal: (url) => ipcRenderer.invoke('open-external', url),
+  getProfile: (chatId) => ipcRenderer.invoke('get-profile', chatId),
 });
 
 

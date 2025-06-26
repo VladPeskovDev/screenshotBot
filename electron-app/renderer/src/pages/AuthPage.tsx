@@ -26,7 +26,7 @@ export default function AuthPage({ onSuccess }: Props) {
         setTimeout(() => {
           setLoading(false);
           onSuccess(telegramId);
-        }, 2000);
+        }, 1500);
       } else {
         setLoading(false);
         setError('Такой Telegram ID не зарегистрирован в системе.');
