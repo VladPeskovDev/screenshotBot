@@ -70,7 +70,7 @@ export default function AuthPage({ onSuccess }: Props) {
           onClick={openTelegramBot}
           disabled={loading}
         >
-          Зарегистрироваться и получить Telegram ID
+          Получить Telegram ID
         </button>
         <button
   className={`${styles.button} ${styles.exitBtn}`}
