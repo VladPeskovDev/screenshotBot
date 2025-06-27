@@ -9,6 +9,7 @@ import LogPage from './pages/LogPage';
 import AuthPage from './pages/AuthPage';
 import { loadSettings, saveSettings } from './ipcBridge';
 import ProfilePage from './pages/ProfilePage';
+import LogListener from './components/LogListener';
 
 
 const router = createHashRouter([
@@ -54,5 +55,10 @@ export default function App() {
     );
   }
 
-  return <RouterProvider router={router} />;
+  return (
+    <>
+      <RouterProvider router={router} />
+      <LogListener /> 
+    </>
+  );
 }
