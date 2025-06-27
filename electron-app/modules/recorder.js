@@ -71,8 +71,15 @@ async function stopRecording() {
 
 // 📤 Send file to server and return the botResponse
 async function sendAudioToServer(filePath) {
-  try {
     const chatId = getTelegramChatId();
+    if (!chatId) {
+    ipcMain.emit("log-message", null, {
+      type: "error",
+      message: "Сначала авторизуйтесь через Telegram!",
+    });
+    return null; // не отправляем ничего!
+    }
+  try {
     const audioPrompt = getAudioPrompt();
     const gptModel = getGptModel() || "GPT-o3-mini";
 
