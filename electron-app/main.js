@@ -1,27 +1,17 @@
 const fs = require("fs");
 const path = require("path");
-const { shell } = require('electron');
+//const { shell } = require('electron');
 const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require("electron");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
 const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt, getScreenshotPrompt,
-  getGptModel,
-  setGptModel,
-  setMode,
-  getMode,
-  getDirectChatId,
-  getDirectToken,
-  setDirectToken,
-  setDirectChatId,
-  getOverlayEffectEnabled,
-  setOverlayEffectEnabled,
-  getMicrophoneIndex,     
-  setMicrophoneIndex 
+  getGptModel, setGptModel, setMode, getMode, getDirectChatId, getDirectToken, setDirectToken,
+  setDirectChatId, getOverlayEffectEnabled, setOverlayEffectEnabled, getMicrophoneIndex, setMicrophoneIndex 
 } = require("./modules/telegram");
 const { showOverlayEffect } = require("./utils/overlayEffect");
 const instance = require('./internal/axiosInstance'); 
 const { registerOverlayWindow, getLastOverlayText } = require("./utils/overlayMessenger");
-const { execSync } = require("child_process");
+//const { execSync } = require("child_process");
 const { spawnSync } = require("child_process");
 let ffmpegPath = require("ffmpeg-static");
 
@@ -38,10 +28,10 @@ let settingsWindow = null;
 let overlayWindow = null;
 let overlayEffectEnabled = getOverlayEffectEnabled();
 
+// Функция для создания окна оверлея
 function createOverlayWindow() {
   if (overlayWindow) return;
   const { width } = screen.getPrimaryDisplay().workAreaSize;
-
   const offsetX = 75;
   const panelWidth = 650;
   const x = Math.floor((width - panelWidth) / 2) - offsetX;
@@ -67,10 +57,7 @@ function createOverlayWindow() {
     },
   });
 
-  //overlayWindow.setIgnoreMouseEvents(true);
   overlayWindow.setIgnoreMouseEvents(true, { forward: true });
-
-
   overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
@@ -87,6 +74,7 @@ function createOverlayWindow() {
   registerOverlayWindow(overlayWindow);
 }
 
+// Функция для создания окна оверлея
 function toggleOverlayWindow() {
   if (!overlayWindow) {
     createOverlayWindow();
@@ -100,12 +88,12 @@ function toggleOverlayWindow() {
   }
 }
 
+// Функция для создания окна настроек
 function createSettingsWindow() {
   if (settingsWindow) {
     settingsWindow.show();
     return;
   }
-
   settingsWindow = new BrowserWindow({
     width: 500,
     height: 565,
@@ -115,7 +103,6 @@ function createSettingsWindow() {
       preload: path.join(__dirname, "preload.js"),
     },
   });
-
   const isDev = !app.isPackaged;
   const rendererUrl = isDev
     ? "http://localhost:5173"
@@ -127,12 +114,12 @@ function createSettingsWindow() {
     event.preventDefault();
     settingsWindow.hide();
   });
-
   settingsWindow.on("closed", () => {
     settingsWindow = null;
   });
 }
 
+// Функция для открытия окна настроек
 function toggleSettingsWindow() {
   if (!settingsWindow) {
     createSettingsWindow();
@@ -141,9 +128,11 @@ function toggleSettingsWindow() {
   }
 }
 
+// Запускаем приложение
 app.whenReady().then(() => {
   createOverlayWindow();
 
+  // Регистрируем горячие клавиши
   globalShortcut.register("CommandOrControl+Shift+S", toggleSettingsWindow);
 
   globalShortcut.register("CommandOrControl+Left", () => {
@@ -175,21 +164,13 @@ app.whenReady().then(() => {
   globalShortcut.register("CommandOrControl+Shift+D", toggleOverlayWindow);
 });
 
-
+// Убираем иконку 
 app.dock && app.dock.hide();
 
+// Сохранение настроек
 ipcMain.on("save-settings", (event, settings) => {
-  const {
-    chatId,
-    prompt,
-    screenshotPrompt,
-    mode,
-    directToken,
-    directChatId,
-    gptModel,
-    overlayEffectEnabled: overlayEnabled,
-  } = settings;
-
+  const { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel,
+    overlayEffectEnabled: overlayEnabled, } = settings;
   setTelegramChatId(chatId);
   setAudioPrompt(prompt);
   setScreenshotPrompt(screenshotPrompt);
@@ -206,6 +187,7 @@ ipcMain.on("save-settings", (event, settings) => {
 }
 });
 
+// Загрузка настроек
 ipcMain.handle("load-settings", () => {
   return {
     chatId: getTelegramChatId(),
@@ -220,6 +202,7 @@ ipcMain.handle("load-settings", () => {
   };
 });
 
+// Отправка текста в оверлей
 ipcMain.on("send-overlay-text", (event, text) => {
   if (overlayWindow) {
     overlayWindow.webContents.send("update-overlay-text", text);
@@ -228,12 +211,14 @@ ipcMain.on("send-overlay-text", (event, text) => {
   }
 });
 
+// Изменение размера оверлей окна под размеры ответа
 ipcMain.handle('resize-overlay', (event, { width, height }) => {
   if (overlayWindow) {
     overlayWindow.setSize(Math.ceil(width), Math.ceil(height));
   }
 });
 
+// Игнорирование мыши
 ipcMain.handle('overlay-set-ignore', (event, ignore) => {
   if (overlayWindow) {
     // когда ignore=true — все клики и скроллы игнорятся (и форвардятся в apps ниже)
@@ -242,6 +227,7 @@ ipcMain.handle('overlay-set-ignore', (event, ignore) => {
   }
 });
 
+// Загрузка списка аудио устройств
 ipcMain.handle("list-audio-devices", () => {
   try {
     const result = spawnSync(ffmpegPath, ['-f', 'avfoundation', '-list_devices', 'true', '-i', ''], {
@@ -284,6 +270,7 @@ ipcMain.handle("list-audio-devices", () => {
   }
 });
 
+// Проверка Telegram ID
 ipcMain.handle('check-telegram-id', async (event, id) => {
   try {
     const response = await instance.get('/api/auth/check-user', { params: { id } });
@@ -298,6 +285,7 @@ ipcMain.handle('check-telegram-id', async (event, id) => {
   }
 });
 
+// Загрузка профиля
 ipcMain.handle('get-profile', async (_event, chatId) => {
   try {
     const response = await instance.post('/api/account', { chatId });
@@ -307,24 +295,29 @@ ipcMain.handle('get-profile', async (_event, chatId) => {
   }
 });
 
+// Открытие ссылки на внешнем браузере в бота ТГ
 ipcMain.handle('open-external', async (_event, url) => {
   const { shell } = require('electron');
   await shell.openExternal(url);
 });
 
-
+// Закрытие приложения
 ipcMain.on("quit-app", () => {
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
   app.exit(0);
 });
 
+// Обработка логов
 ipcMain.on("log-message", (event, log) => {
   const windows = BrowserWindow.getAllWindows();
   windows.forEach((win) => win.webContents.send("log-from-main", log));
 });
 
+// Закрытие приложения
 app.on("window-all-closed", () => {});
+
+// Закрытие приложения
 app.on("will-quit", () => {
   globalShortcut.unregisterAll();
 });
