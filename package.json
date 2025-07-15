@@ -29,6 +29,7 @@
     "react-router-dom": "^6.30.0",
     "screenshot-desktop": "^1.15.1",
     "set-function-length": "^1.2.2",
+    "tesseract.js": "^6.0.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {
@@ -46,8 +47,8 @@
     "productName": "HackSobes",
     "mac": {
       "sign": false,
-"identity": null,
-"hardenedRuntime": false,
+      "identity": null,
+      "hardenedRuntime": false,
       "icon": "electron-app/icon/icon.icns",
       "target": [
         {

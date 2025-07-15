@@ -6,12 +6,11 @@ const { showOverlayEffect } = require("../../utils/overlayEffect");
 
 function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverlayEffectEnabled }) {
   let isRecording = false;
-  let overlayEffectEnabled = getOverlayEffectEnabled();
 
   // Открытие/закрытие окна настроек
   globalShortcut.register("CommandOrControl+Shift+S", toggleSettingsWindow);
 
-  // Отправка скриншота 
+  // Отправка скриншота
   globalShortcut.register("CommandOrControl+Left", () => {
     const mode = getMode();
     if (mode === "direct") {
@@ -20,7 +19,7 @@ function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverl
     } else {
       sendScreenshot(); // через GPT/ассистента
     }
-    showOverlayEffect(overlayEffectEnabled); // эффект вспышки
+    showOverlayEffect(getOverlayEffectEnabled()); // ⚡️ актуальное значение
   });
 
   // Начать/остановить запись аудио
@@ -31,14 +30,14 @@ function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverl
     });
 
     if (isRecording) {
-      showOverlayEffect(overlayEffectEnabled);
+      showOverlayEffect(getOverlayEffectEnabled());
       await stopRecording();
     } else {
       await startRecording();
     }
 
     isRecording = !isRecording;
-    showOverlayEffect(overlayEffectEnabled);
+    showOverlayEffect(getOverlayEffectEnabled());
   });
 
   // Показать/скрыть окно оверлея
@@ -46,4 +45,3 @@ function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverl
 }
 
 module.exports = { registerShortcuts };
-
