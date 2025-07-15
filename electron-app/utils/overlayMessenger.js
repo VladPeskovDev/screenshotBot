@@ -25,7 +25,6 @@ function getLastOverlayText() {
   return lastText;
 }
 
-//  Экспортируем функции
 module.exports = {
   registerOverlayWindow,
   sendOverlayText,

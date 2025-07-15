@@ -1,20 +1,22 @@
 const fs = require("fs");
 const path = require("path");
-//const { shell } = require('electron');
-const { app, globalShortcut, BrowserWindow, ipcMain, screen } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const { sendScreenshot } = require("./modules/screenshot");
 const { startRecording, stopRecording } = require("./modules/recorder");
-const { setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt, getScreenshotPrompt,
-  getGptModel, setGptModel, setMode, getMode, getDirectChatId, getDirectToken, setDirectToken,
-  setDirectChatId, getOverlayEffectEnabled, setOverlayEffectEnabled, getMicrophoneIndex, setMicrophoneIndex 
+const {setTelegramChatId, setAudioPrompt, setScreenshotPrompt,
+  getTelegramChatId, getAudioPrompt, getScreenshotPrompt,
+  getGptModel, setGptModel, setMode, getMode,
+  getDirectChatId, getDirectToken, setDirectToken, setDirectChatId,
+  getOverlayEffectEnabled, setOverlayEffectEnabled,
+  getMicrophoneIndex, setMicrophoneIndex
 } = require("./modules/telegram");
-const { showOverlayEffect } = require("./utils/overlayEffect");
-const instance = require('./internal/axiosInstance'); 
-const { registerOverlayWindow, getLastOverlayText } = require("./utils/overlayMessenger");
-//const { execSync } = require("child_process");
+const instance = require('./internal/axiosInstance');
 const { spawnSync } = require("child_process");
 let ffmpegPath = require("ffmpeg-static");
 
+const { createOverlayWindow, toggleOverlayWindow, getOverlayWindow } = require("./core/windows/overlay");
+const { toggleSettingsWindow } = require("./core/windows/settings");
+const { registerShortcuts } = require("./core/shortcuts/registerShortcuts");
 
 if (app.isPackaged) {
   ffmpegPath = ffmpegPath.replace(
@@ -23,154 +25,32 @@ if (app.isPackaged) {
   );
 }
 
-let isRecording = false;
-let settingsWindow = null;
-let overlayWindow = null;
 let overlayEffectEnabled = getOverlayEffectEnabled();
 
-// Функция для создания окна оверлея
-function createOverlayWindow() {
-  if (overlayWindow) return;
-  const { width } = screen.getPrimaryDisplay().workAreaSize;
-  const offsetX = 75;
-  const panelWidth = 650;
-  const x = Math.floor((width - panelWidth) / 2) - offsetX;
-
-  overlayWindow = new BrowserWindow({
-    width: 900,
-    height: 80,
-    x,
-    y: 80,
-    frame: false,
-    transparent: true,
-    alwaysOnTop: true,
-    skipTaskbar: true,
-    focusable: false,
-    hasShadow: false,
-    resizable: false,
-    fullscreenable: false,
-    show: false,
-    vibrancy: "ultra-dark",
-    webPreferences: {
-      contextIsolation: true,
-      preload: path.join(__dirname, "overlay-preload.js"),
-    },
-  });
-
-  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
-  overlayWindow.setAlwaysOnTop(true, "screen-saver");
-  overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
-
-  const overlayUrl = app.isPackaged
-    ? `file://${path.join(__dirname, "renderer", "dist", "overlay.html")}`
-    : "http://localhost:5173/overlay.html";
-
-  overlayWindow.loadURL(overlayUrl);
-
-  overlayWindow.on("closed", () => {
-    overlayWindow = null;
-  });
-
-  registerOverlayWindow(overlayWindow);
-}
-
-// Функция для создания окна оверлея
-function toggleOverlayWindow() {
-  if (!overlayWindow) {
-    createOverlayWindow();
-  } else {
-    overlayWindow.isVisible() ? overlayWindow.hide() : overlayWindow.show();
-
-    if (overlayWindow.isVisible()) {
-      const text = getLastOverlayText();
-      overlayWindow.webContents.send("update-overlay-text", text);
-    }
-  }
-}
-
-// Функция для создания окна настроек
-function createSettingsWindow() {
-  if (settingsWindow) {
-    settingsWindow.show();
-    return;
-  }
-  settingsWindow = new BrowserWindow({
-    width: 500,
-    height: 565,
-    titleBarStyle: "hiddenInset",
-    autoHideMenuBar: true,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.js"),
-    },
-  });
-  const isDev = !app.isPackaged;
-  const rendererUrl = isDev
-    ? "http://localhost:5173"
-    : `file://${path.join(__dirname, "renderer", "dist", "index.html")}`;
-
-  settingsWindow.loadURL(rendererUrl);
-
-  settingsWindow.on("close", (event) => {
-    event.preventDefault();
-    settingsWindow.hide();
-  });
-  settingsWindow.on("closed", () => {
-    settingsWindow = null;
-  });
-}
-
-// Функция для открытия окна настроек
-function toggleSettingsWindow() {
-  if (!settingsWindow) {
-    createSettingsWindow();
-  } else {
-    settingsWindow.isVisible() ? settingsWindow.hide() : settingsWindow.show();
-  }
-}
-
-// Запускаем приложение
 app.whenReady().then(() => {
   createOverlayWindow();
 
-  // Регистрируем горячие клавиши
-  globalShortcut.register("CommandOrControl+Shift+S", toggleSettingsWindow);
-
-  globalShortcut.register("CommandOrControl+Left", () => {
-    const mode = getMode();
-    if (mode === "direct") {
-      const { sendDirectScreenshot } = require("./modules/direct");
-      sendDirectScreenshot();
-    } else {
-      sendScreenshot();
-    }
-    showOverlayEffect(overlayEffectEnabled);
+  //Регистрируем шорт каты
+  registerShortcuts({
+    toggleSettingsWindow,
+    toggleOverlayWindow,
+    getOverlayEffectEnabled,
+    startRecording,
+    stopRecording,
+    sendScreenshot,
   });
-
-  globalShortcut.register("CommandOrControl+Enter", async () => {
-    ipcMain.emit("log-message", null, {
-      type: "info",
-      message: isRecording ? "⏹ Остановка записи" : "▶️ Начало записи",
-    });
-    if (isRecording) {
-      showOverlayEffect(overlayEffectEnabled);
-      await stopRecording();
-    } else {
-      await startRecording();
-    }
-    isRecording = !isRecording;
-    showOverlayEffect(overlayEffectEnabled);
-  });
-
-  globalShortcut.register("CommandOrControl+Shift+D", toggleOverlayWindow);
 });
 
-// Убираем иконку 
 app.dock && app.dock.hide();
 
 // Сохранение настроек
 ipcMain.on("save-settings", (event, settings) => {
-  const { chatId, prompt, screenshotPrompt, mode, directToken, directChatId, gptModel,
-    overlayEffectEnabled: overlayEnabled, } = settings;
+  const {
+    chatId, prompt, screenshotPrompt, mode,
+    directToken, directChatId, gptModel,
+    overlayEffectEnabled: overlayEnabled, microphoneIndex
+  } = settings;
+
   setTelegramChatId(chatId);
   setAudioPrompt(prompt);
   setScreenshotPrompt(screenshotPrompt);
@@ -182,28 +62,25 @@ ipcMain.on("save-settings", (event, settings) => {
     setOverlayEffectEnabled(overlayEnabled);
     overlayEffectEnabled = overlayEnabled;
   }
-  if (settings.microphoneIndex) {
-  setMicrophoneIndex(settings.microphoneIndex);
-}
+  if (microphoneIndex) setMicrophoneIndex(microphoneIndex);
 });
 
 // Загрузка настроек
-ipcMain.handle("load-settings", () => {
-  return {
-    chatId: getTelegramChatId(),
-    prompt: getAudioPrompt(),
-    screenshotPrompt: getScreenshotPrompt(),
-    mode: getMode(),
-    directToken: getDirectToken(),
-    directChatId: getDirectChatId(),
-    gptModel: getGptModel(),
-    microphoneIndex: getMicrophoneIndex(),
-    overlayEffectEnabled,
-  };
-});
+ipcMain.handle("load-settings", () => ({
+  chatId: getTelegramChatId(),
+  prompt: getAudioPrompt(),
+  screenshotPrompt: getScreenshotPrompt(),
+  mode: getMode(),
+  directToken: getDirectToken(),
+  directChatId: getDirectChatId(),
+  gptModel: getGptModel(),
+  microphoneIndex: getMicrophoneIndex(),
+  overlayEffectEnabled,
+}));
 
 // Отправка текста в оверлей
 ipcMain.on("send-overlay-text", (event, text) => {
+  const overlayWindow = getOverlayWindow();
   if (overlayWindow) {
     overlayWindow.webContents.send("update-overlay-text", text);
   } else {
@@ -211,8 +88,9 @@ ipcMain.on("send-overlay-text", (event, text) => {
   }
 });
 
-// Изменение размера оверлей окна под размеры ответа
+// Изменение размера оверлея
 ipcMain.handle('resize-overlay', (event, { width, height }) => {
+  const overlayWindow = getOverlayWindow();
   if (overlayWindow) {
     overlayWindow.setSize(Math.ceil(width), Math.ceil(height));
   }
@@ -220,14 +98,13 @@ ipcMain.handle('resize-overlay', (event, { width, height }) => {
 
 // Игнорирование мыши
 ipcMain.handle('overlay-set-ignore', (event, ignore) => {
+  const overlayWindow = getOverlayWindow();
   if (overlayWindow) {
-    // когда ignore=true — все клики и скроллы игнорятся (и форвардятся в apps ниже)
-    // когда ignore=false — окно принимает все события
     overlayWindow.setIgnoreMouseEvents(ignore, { forward: ignore });
   }
 });
 
-// Загрузка списка аудио устройств
+// Список аудио-устройств
 ipcMain.handle("list-audio-devices", () => {
   try {
     const result = spawnSync(ffmpegPath, ['-f', 'avfoundation', '-list_devices', 'true', '-i', ''], {
@@ -253,18 +130,13 @@ ipcMain.handle("list-audio-devices", () => {
         continue;
       }
 
-      // находим строки типа: [AVFoundation indev @ ...] [0] AirPods
       if (isAudio && /^\[AVFoundation indev.*\] \[\d+\]/.test(trimmed)) {
         const cleaned = trimmed.replace(/^.*\[(\d+)\] /, (match, index) => `[${index}] `);
         audioDevices.push(cleaned);
       }
     }
 
-    if (audioDevices.length === 0) {
-      return [`⚠️ Аудиоустройства не найдены.`];
-    }
-
-    return audioDevices;
+    return audioDevices.length > 0 ? audioDevices : [`⚠️ Аудиоустройства не найдены.`];
   } catch (e) {
     return [`❌ Ошибка при получении устройств: ${e.message}`];
   }
@@ -275,10 +147,7 @@ ipcMain.handle('check-telegram-id', async (event, id) => {
   try {
     const response = await instance.get('/api/auth/check-user', { params: { id } });
     const data = response.data;
-    return {
-      valid: !!data.valid,
-      username: data.username || ''
-    };
+    return { valid: !!data.valid, username: data.username || '' };
   } catch (error) {
     console.error('Ошибка при проверке Telegram ID:', error.message);
     return { valid: false, username: '' };
@@ -295,13 +164,13 @@ ipcMain.handle('get-profile', async (_event, chatId) => {
   }
 });
 
-// Открытие ссылки на внешнем браузере в бота ТГ
+// Открытие внешней ссылки
 ipcMain.handle('open-external', async (_event, url) => {
   const { shell } = require('electron');
   await shell.openExternal(url);
 });
 
-// Закрытие приложения
+// Завершение приложения
 ipcMain.on("quit-app", () => {
   BrowserWindow.getAllWindows().forEach((win) => win.destroy());
   app.quit();
@@ -314,13 +183,13 @@ ipcMain.on("log-message", (event, log) => {
   windows.forEach((win) => win.webContents.send("log-from-main", log));
 });
 
-// Закрытие приложения
+// Очистка при выходе
 app.on("window-all-closed", () => {});
-
-// Закрытие приложения
 app.on("will-quit", () => {
+  const { globalShortcut } = require("electron");
   globalShortcut.unregisterAll();
 });
+
 
 
 /* 

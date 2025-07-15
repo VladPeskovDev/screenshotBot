@@ -13,7 +13,7 @@ const {
 const { ipcMain, app } = require("electron");
 const FormData = require("form-data");
 
-// 👇 Импортируем функцию, которая шлёт текст в overlay
+// Импортируем функцию, которая шлёт текст в overlay
 const { sendOverlayText } = require("../utils/overlayMessenger");
 
 // Determine ffmpeg path and ensure unpacked
