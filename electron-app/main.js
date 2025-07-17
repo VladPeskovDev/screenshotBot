@@ -12,11 +12,12 @@ const {setTelegramChatId, setAudioPrompt, setScreenshotPrompt,
 } = require("./modules/telegram");
 const instance = require('./internal/axiosInstance');
 const { spawnSync } = require("child_process");
-let ffmpegPath = require("ffmpeg-static");
-
 const { createOverlayWindow, toggleOverlayWindow, getOverlayWindow } = require("./core/windows/overlay");
 const { toggleSettingsWindow } = require("./core/windows/settings");
 const { registerShortcuts } = require("./core/shortcuts/registerShortcuts");
+
+let ffmpegPath = require("ffmpeg-static");
+
 
 if (app.isPackaged) {
   ffmpegPath = ffmpegPath.replace(

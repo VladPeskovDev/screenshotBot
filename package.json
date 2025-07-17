@@ -62,7 +62,8 @@
       "category": "public.app-category.utilities"
     },
     "asarUnpack": [
-      "**/node_modules/ffmpeg-static/**"
+      "**/node_modules/ffmpeg-static/**",
+      "**/node_modules/tesseract.js-core/**"
     ]
   }
 }
