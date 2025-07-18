@@ -1,32 +1,58 @@
 const { BrowserWindow } = require('electron');
 
 let overlayWindowRef = null;
-let lastText = '⌛ Ожидание ответа...';
+let messages = ['⌛ Ожидание ответа...'];
+let wasFirstRealMessage = false;
 
-// Сохраняем ссылку на окно
+// Сохраняем ссылку на окно оверлея
 function registerOverlayWindow(windowInstance) {
   overlayWindowRef = windowInstance;
 }
 
-// Сохраняем текст и отправляем его во фронт
+// Отправляем текст в оверлей (накапливаем сообщения)
 function sendOverlayText(text) {
-  //console.log('[overlayMessenger] sendOverlayText:', text);
-  lastText = text;
+  if (!wasFirstRealMessage) {
+    messages = []; // убираем "Ожидание ответа..."
+    wasFirstRealMessage = true;
+  }
 
-  if (overlayWindowRef) {
-    overlayWindowRef.webContents.send('update-overlay-text', text);
-  } else {
-    console.warn('[overlayMessenger] overlayWindowRef is null');
+  messages.push(text);
+  _updateOverlay(); // внутреннее обновление UI
+}
+
+// Удаляет самое старое сообщение
+function removeOldestMessage() {
+  if (messages.length > 0) {
+    messages.shift();
+    _updateOverlay();
   }
 }
 
-//  Возвращаем последний полученный текст
+// Полная очистка
+function clearOverlayText() {
+  messages = ['⌛ Ожидание ответа...'];
+  wasFirstRealMessage = false;
+  _updateOverlay();
+}
+
+// Получаем весь текст для отображения
 function getLastOverlayText() {
-  return lastText;
+  return messages.join('\n\n');
+}
+
+// Внутренний метод отправки в окно
+function _updateOverlay() {
+  if (overlayWindowRef) {
+    overlayWindowRef.webContents.send('update-overlay-text', getLastOverlayText());
+  } else {
+    console.warn('[overlayMessenger] overlayWindowRef is null');
+  }
 }
 
 module.exports = {
   registerOverlayWindow,
   sendOverlayText,
   getLastOverlayText,
+  clearOverlayText,
+  removeOldestMessage,
 };
