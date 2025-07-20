@@ -6,7 +6,6 @@ import type { AppSettings } from '../types';
 
 
 
-
 const SettingsPage: React.FC = () => {
   const [mode, setMode] = useState<'helper' | 'direct'>('helper');
   const [chatId, setChatId] = useState('');

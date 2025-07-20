@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import styles from './ProfilePage.module.css'; // создай/добавь стили
+import styles from './ProfilePage.module.css'; 
 import { loadSettings, saveSettings } from '../ipcBridge';
 import { useNavigate } from 'react-router-dom';
 type ProfileData = {
@@ -99,5 +99,4 @@ export default function ProfilePage() {
     </div>
   </>
 );
-
 }

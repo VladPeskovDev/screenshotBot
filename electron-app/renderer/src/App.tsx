@@ -48,7 +48,7 @@ export default function App() {
     '',               // directChatId
     'GPT-4о',         // gptModel
     false,            // overlayEffectEnabled
-    ':0'              
+    ':0'              // microphoneIndex
   );
   setChatId(id);
 }} />
