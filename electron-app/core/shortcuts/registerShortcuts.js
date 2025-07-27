@@ -3,6 +3,8 @@ const { sendScreenshot } = require("../../modules/screenshot");
 const { startRecording, stopRecording } = require("../../modules/recorder");
 const { getMode } = require("../../modules/telegram");
 const { showOverlayEffect } = require("../../utils/overlayEffect");
+const { startAutoScreenshot, stopAutoScreenshot, isAutoScreenshotRunning,
+} = require("../../modules/autoDirect");
 
 function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverlayEffectEnabled }) {
   let isRecording = false;
@@ -42,6 +44,23 @@ function registerShortcuts({ toggleSettingsWindow, toggleOverlayWindow, getOverl
 
   // Показать/скрыть окно оверлея
   globalShortcut.register("CommandOrControl+Shift+D", toggleOverlayWindow);
+
+
+ // ✅ Включение/отключение автоскриншотов
+  globalShortcut.register("CommandOrControl+Up", () => {
+    const mode = getMode();
+    if (mode !== "direct") {
+      console.warn("⚠️ Автоскриншоты доступны только в режиме 'direct'");
+      return;
+    }
+    if (isAutoScreenshotRunning()) {
+      stopAutoScreenshot();
+      console.log("🛑 Автоскриншоты отключены");
+    } else {
+      startAutoScreenshot();
+      console.log("✅ Автоскриншоты включены");
+    }
+  });
 }
 
 module.exports = { registerShortcuts };
