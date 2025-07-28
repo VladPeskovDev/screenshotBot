@@ -15,7 +15,7 @@ function createOverlayWindow() {
     width: 900,
     height: 80,
     x,
-    y: 65,
+    y: 60,
     frame: false,
     transparent: true,
     alwaysOnTop: true,
