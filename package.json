@@ -44,7 +44,7 @@
   },
   "build": {
     "appId": "ru.tgqueue.hacksobes",
-    "productName": "HackSobes",
+    "productName": "HackSobes-custom",
     "mac": {
       "sign": false,
       "identity": null,
