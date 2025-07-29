@@ -192,7 +192,6 @@ app.on("will-quit", () => {
 });
 
 
-
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
