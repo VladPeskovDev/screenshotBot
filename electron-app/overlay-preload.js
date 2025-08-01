@@ -15,6 +15,6 @@ contextBridge.exposeInMainWorld('overlayBridge', {
     ipcRenderer.invoke('resize-overlay', { width, height }),
 
   // Включить или выключить игнорирование всех мышиных событий
-  setIgnoreMouseEvents: (ignore) =>
-    ipcRenderer.invoke('overlay-set-ignore', ignore),
+  //setIgnoreMouseEvents: (ignore) =>
+    //ipcRenderer.invoke('overlay-set-ignore', ignore),
 });

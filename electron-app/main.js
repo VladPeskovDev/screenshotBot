@@ -18,7 +18,8 @@ const { registerShortcuts } = require("./core/shortcuts/registerShortcuts");
 
 let ffmpegPath = require("ffmpeg-static");
 
-
+//let isMouseIgnored = false;
+ 
 if (app.isPackaged) {
   ffmpegPath = ffmpegPath.replace(
     `${path.sep}app.asar${path.sep}`,
@@ -98,12 +99,14 @@ ipcMain.handle('resize-overlay', (event, { width, height }) => {
 });
 
 // Игнорирование мыши
-ipcMain.handle('overlay-set-ignore', (event, ignore) => {
+/* ipcMain.handle('overlay-set-ignore', (event, ignore) => {
   const overlayWindow = getOverlayWindow();
-  if (overlayWindow) {
-    overlayWindow.setIgnoreMouseEvents(ignore, { forward: ignore });
+  console.log('[Overlay] IGNORE:', ignore); // контроль
+  if (overlayWindow && isMouseIgnored !== ignore) {
+    isMouseIgnored = ignore;
+    overlayWindow.setIgnoreMouseEvents(ignore, { forward: false });
   }
-});
+}); */
 
 // Список аудио-устройств
 ipcMain.handle("list-audio-devices", () => {
@@ -198,3 +201,11 @@ CommandOrControl+Left – Отправить скриншот.
 CommandOrControl+Up – Начать / Остановить запись.
 CommandOrControl+Shift+D - Открыть или Закрыть окно overlay.
 */
+
+
+
+
+
+
+
+// Напиши сортировку на JS тремя разными способами 

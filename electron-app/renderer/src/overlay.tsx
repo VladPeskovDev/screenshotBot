@@ -23,6 +23,8 @@ const Overlay: React.FC = () => {
   const [hovered, setHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  
+
   // Получение новых сообщений
   useEffect(() => {
     const bridge = window.overlayBridge;
@@ -33,54 +35,48 @@ const Overlay: React.FC = () => {
       setCurrentIndex(prev => prev + 1);
     });
 
-    bridge.setIgnoreMouseEvents(true);
   }, []);
 
   // Изменение размера окна при наведении
   useEffect(() => {
-    const bridge = window.overlayBridge;
-    const el = containerRef.current;
-    if (!bridge || !el) return;
+  const bridge = window.overlayBridge;
+  const el = containerRef.current;
+  if (!bridge || !el) return;
 
-    (async () => {
-      const { scrollWidth, scrollHeight } = el;
-      if (hovered) {
-        await bridge.resizeOverlay(scrollWidth, scrollHeight);
-        await bridge.setIgnoreMouseEvents(false);
-      } else {
-        await bridge.resizeOverlay(INITIAL_SIZE.width, INITIAL_SIZE.height);
-        await bridge.setIgnoreMouseEvents(true);
-      }
-    })();
-  }, [hovered]);
+  (async () => {
+    const { scrollWidth, scrollHeight } = el;
+
+    if (hovered) {
+      await bridge.resizeOverlay(scrollWidth, scrollHeight);
+      //await bridge.setIgnoreMouseEvents(false); // оставить
+    } else {
+      await bridge.resizeOverlay(INITIAL_SIZE.width, INITIAL_SIZE.height);
+    }
+  })();
+}, [hovered]);
+
 
   useEffect(() => {
   const bridge = window.overlayBridge;
   if (!bridge) return;
 
   (async () => {
-    // Минимизируем окно — как при убирании мыши
-    await bridge.resizeOverlay(INITIAL_SIZE.width, INITIAL_SIZE.height);
-    await bridge.setIgnoreMouseEvents(true);
+    const el = containerRef.current;
+    if (!el) return;
 
-    // Ждём, чтобы DOM отрисовался
-    setTimeout(async () => {
-      const el = containerRef.current;
-      if (!el) return;
-
-      const { scrollWidth, scrollHeight } = el;
-      await bridge.resizeOverlay(scrollWidth, scrollHeight);
-      await bridge.setIgnoreMouseEvents(false);
-
-      // Запускаем подсветку кода повторно
-      requestAnimationFrame(() => {
-        document.querySelectorAll('pre code').forEach(block => {
-          hljs.highlightElement(block as HTMLElement);
-        });
+    const { scrollWidth, scrollHeight } = el;
+    await bridge.resizeOverlay(scrollWidth, scrollHeight);
+    //await bridge.setIgnoreMouseEvents(false); // только false!
+    
+    // Подсветка кода
+    requestAnimationFrame(() => {
+      document.querySelectorAll('pre code').forEach(block => {
+        hljs.highlightElement(block as HTMLElement);
       });
-    }, 20); // 50 мс пауза
+    });
   })();
 }, [currentIndex]);
+
 
 
   // Автоскролл и подсветка новых блоков

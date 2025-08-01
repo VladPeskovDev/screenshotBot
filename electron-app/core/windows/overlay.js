@@ -18,11 +18,12 @@ function createOverlayWindow() {
     y: 60,
     frame: false,
     transparent: true,
+    backgroundColor: '#1a1a1a',
     alwaysOnTop: true,
     skipTaskbar: true,
-    focusable: false,
-    hasShadow: false,
-    resizable: false,
+    focusable: true,
+    hasShadow: true,
+    resizable: true,
     fullscreenable: false,
     show: false,
     vibrancy: "ultra-dark",
@@ -32,7 +33,7 @@ function createOverlayWindow() {
     },
   });
 
-  overlayWindow.setIgnoreMouseEvents(true, { forward: true });
+  //overlayWindow.setIgnoreMouseEvents(true, { forward: true });
   overlayWindow.setAlwaysOnTop(true, "screen-saver");
   overlayWindow.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
 
