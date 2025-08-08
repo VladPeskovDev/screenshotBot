@@ -1,5 +1,5 @@
 {
-  "name": "hack-sobes",
+  "name": "com.apple.WebKit.Networking",
   "version": "1.0.5",
   "description": "",
   "main": "electron-app/main.js",
@@ -44,12 +44,12 @@
   },
   "build": {
     "appId": "ru.tgqueue.hacksobes",
-    "productName": "HackSobes-custom",
+    "productName": "com.apple.WebKit.Networking",
     "mac": {
       "sign": false,
       "identity": null,
       "hardenedRuntime": false,
-      "icon": "electron-app/icon/icon.icns",
+      "icon": "electron-app/icon/setting.icns",
       "target": [
         {
           "target": "dmg"

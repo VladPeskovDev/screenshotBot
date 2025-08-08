@@ -195,6 +195,7 @@ app.on("will-quit", () => {
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
-CommandOrControl+Up – Начать / Остановить запись.
+CommandOrControl+Enter – Начать / Остановить запись.
 CommandOrControl+Shift+D - Открыть или Закрыть окно overlay.
+CommandOrControl+Up – Включить автоматическое скриншотирование.
 */
