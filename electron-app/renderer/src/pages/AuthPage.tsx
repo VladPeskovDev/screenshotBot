@@ -2,7 +2,6 @@ import { useState } from 'react';
 import styles from './AuthPage.module.css';
 
 
-
 type Props = {
   onSuccess: (chatId: string) => void;
 };

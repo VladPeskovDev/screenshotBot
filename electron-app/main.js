@@ -98,7 +98,7 @@ ipcMain.handle('resize-overlay', (event, { width, height }) => {
   }
 });
 
-// Игнорирование мыши
+// Игнорирование мыши (убрал, мешало прокрутке в оверлей)
 /* ipcMain.handle('overlay-set-ignore', (event, ignore) => {
   const overlayWindow = getOverlayWindow();
   console.log('[Overlay] IGNORE:', ignore); // контроль
@@ -139,7 +139,6 @@ ipcMain.handle("list-audio-devices", () => {
         audioDevices.push(cleaned);
       }
     }
-
     return audioDevices.length > 0 ? audioDevices : [`⚠️ Аудиоустройства не найдены.`];
   } catch (e) {
     return [`❌ Ошибка при получении устройств: ${e.message}`];
@@ -198,7 +197,7 @@ app.on("will-quit", () => {
 /* 
 CommandOrControl+Shift+S – Открыть / Закрыть окно настроек.
 CommandOrControl+Left – Отправить скриншот.
-CommandOrControl+Up – Начать / Остановить запись.
+CommandOrControl+Enter – Начать / Остановить запись.
 CommandOrControl+Shift+D - Открыть или Закрыть окно overlay.
 */
 
