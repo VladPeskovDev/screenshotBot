@@ -20,7 +20,6 @@ async function sendDirectScreenshot() {
     await bot.sendPhoto(chatId, buffer, {
         filename: 'screenshot.png', 
       });
-    //console.log('✅ Скриншот успешно отправлен через Telegram напрямую');
   } catch (error) {
     console.error('❌ Ошибка при отправке скриншота:', error.message);
   }

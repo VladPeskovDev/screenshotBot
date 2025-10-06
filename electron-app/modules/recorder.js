@@ -3,9 +3,7 @@ const os = require("os");
 const path = require("path");
 const { exec } = require("child_process");
 const axios = require("../internal/axiosInstance");
-const {
-  getTelegramChatId,
-  getAudioPrompt,
+const { getTelegramChatId, getAudioPrompt,
   getGptModel,
   getMicrophoneIndex,
 } = require("./telegram");
@@ -32,9 +30,6 @@ let recordingProcess = null;
 // Start recording 
 async function startRecording() {
   const microphoneIndex = getMicrophoneIndex() || ":0";
-//recordingProcess = exec(
-  //`"${ffmpegPath}" -y -f avfoundation -i "${microphoneIndex}" -ar 16000 -ac 1 -t 55 "${audioFilePath}"`
-//);
 recordingProcess = exec(
   `"${ffmpegPath}" -y -f avfoundation -i "${microphoneIndex}" -ar 16000 -ac 1 -t 55 -c:a flac "${audioFilePath}"`
 );
@@ -106,7 +101,6 @@ async function sendAudioToServer(filePath) {
 
     const botResponse = response.data.reply;
     if (botResponse) {
-      //console.log('[recorder] server reply:', botResponse);
       // Шлём текст в overlay
       sendOverlayText(botResponse);
       return botResponse;
