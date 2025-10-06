@@ -14,7 +14,6 @@ function registerOverlayWindow(windowInstance) {
 
 // Сохраняем текст и отправляем его во фронт (каждый ответ меняет и удаляет предыдущий)
  function sendOverlayText(text) {
-  //console.log('[overlayMessenger] sendOverlayText:', text);
   lastText = text;
 
   if (overlayWindowRef) {

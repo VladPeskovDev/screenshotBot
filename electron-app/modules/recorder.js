@@ -3,11 +3,7 @@ const os = require("os");
 const path = require("path");
 const { exec } = require("child_process");
 const axios = require("../internal/axiosInstance");
-const {
-  getTelegramChatId,
-  getAudioPrompt,
-  getGptModel,
-  getMicrophoneIndex,
+const { getTelegramChatId, getAudioPrompt, getGptModel, getMicrophoneIndex,
 } = require("./telegram");
 const { ipcMain, app } = require("electron");
 const FormData = require("form-data");
@@ -32,9 +28,7 @@ let recordingProcess = null;
 // 🎙️ Start recording (up to 55 seconds)
 async function startRecording() {
   const microphoneIndex = getMicrophoneIndex() || ":0";
-//recordingProcess = exec(
-  //`"${ffmpegPath}" -y -f avfoundation -i "${microphoneIndex}" -ar 16000 -ac 1 -t 55 "${audioFilePath}"`
-//);
+//формат flac
 recordingProcess = exec(
   `"${ffmpegPath}" -y -f avfoundation -i "${microphoneIndex}" -ar 16000 -ac 1 -t 55 -c:a flac "${audioFilePath}"`
 );

@@ -6,8 +6,7 @@ const { startRecording, stopRecording } = require("./modules/recorder");
 const {setTelegramChatId, setAudioPrompt, setScreenshotPrompt, getTelegramChatId, getAudioPrompt, getScreenshotPrompt,
   getGptModel, setGptModel, setMode, getMode,
   getDirectChatId, getDirectToken, setDirectToken, setDirectChatId,
-  getOverlayEffectEnabled, setOverlayEffectEnabled,
-  getMicrophoneIndex, setMicrophoneIndex
+  getOverlayEffectEnabled, setOverlayEffectEnabled, getMicrophoneIndex, setMicrophoneIndex
 } = require("./modules/telegram");
 const instance = require('./internal/axiosInstance');
 const { spawnSync } = require("child_process");

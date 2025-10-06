@@ -1,4 +1,3 @@
-// telegram.js
 const fs = require('fs');
 const path = require('path');
 const { app } = require('electron');
@@ -37,7 +36,6 @@ function loadSettings() {
 function saveSettings(settings) {
   try {
     fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2), 'utf-8');
-    //console.log('✅ Настройки сохранены:', settings);
   } catch (error) {
     console.error('❌ Ошибка при сохранении настроек:', error);
   }
