@@ -139,9 +139,9 @@ ipcMain.handle("list-audio-devices", () => {
         audioDevices.push(cleaned);
       }
     }
-    return audioDevices.length > 0 ? audioDevices : [`⚠️ Аудиоустройства не найдены.`];
+    return audioDevices.length > 0 ? audioDevices : [`Аудиоустройства не найдены.`];
   } catch (e) {
-    return [`❌ Ошибка при получении устройств: ${e.message}`];
+    return [`Ошибка при получении устройств: ${e.message}`];
   }
 });
 
